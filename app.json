@@ -1,12 +1,16 @@
 {
-  "name": "mobile",
-  "displayName": "mobile",
+  "name": "Magia da Patinação",
+  "displayName": "Magia da Patinação",
   "expo": {
-    "name": "mobile",
+    "name": "magiadapatinacao",
     "slug": "mobile",
     "version": "1.0.0",
     "assetBundlePatterns": [
       "**/*"
-    ]
+    ],
+    "splash": {
+      "image": "./assets/splash.png",
+      "backgroundColor": "#F2F2F2"
+    }
   }
 }
