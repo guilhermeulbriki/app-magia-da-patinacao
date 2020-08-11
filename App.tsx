@@ -4,11 +4,13 @@ import {
   Roboto_500Medium,
   Roboto_700Bold,
 } from '@expo-google-fonts/roboto';
+import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
-import Login from './src/pages/Login';
+import AppProvider from './src/hooks';
+import Routes from './src/routes';
 
 const App: React.FC = () => {
   const [fontsLoaded] = useFonts({
@@ -30,11 +32,13 @@ const App: React.FC = () => {
     );
   } else {
     return (
-      // eslint-disable-next-line react/jsx-fragments
-      <>
-        <Login />
+      <NavigationContainer>
         <StatusBar style="dark" />
-      </>
+
+        <AppProvider>
+          <Routes />
+        </AppProvider>
+      </NavigationContainer>
     );
   }
 };
