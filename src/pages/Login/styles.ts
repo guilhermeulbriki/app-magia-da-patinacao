@@ -1,3 +1,4 @@
+import Animated from 'react-native-reanimated';
 import styled from 'styled-components/native';
 
 export const Container = styled.View`
@@ -13,11 +14,7 @@ export const Content = styled.View`
   align-items: center;
 `;
 
-export const LogoImage = styled.Image`
-  margin-bottom: 56px;
-`;
-
-export const SignUpContainer = styled.View`
+export const SignUpContainer = styled(Animated.View)`
   width: 100%;
   align-items: center;
   margin-top: 56px;

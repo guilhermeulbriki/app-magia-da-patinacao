@@ -1,7 +1,13 @@
 import { FormHandles } from '@unform/core';
 import { Form } from '@unform/mobile';
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useEffect } from 'react';
 import { TextInput } from 'react-native';
+import Animated, {
+  useSharedValue,
+  withTiming,
+  Easing,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 
 import logoImg from '../../assets/logo.png';
 import signInBackground from '../../assets/signInBackground.png';
@@ -10,7 +16,6 @@ import Input from '../../components/Input';
 import {
   Container,
   Content,
-  LogoImage,
   SignUpContainer,
   SignUpDescripion,
   SignUpRedirect,
@@ -20,6 +25,32 @@ import {
 const Login: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
   const passwordInputRef = useRef<TextInput>(null);
+  const imagePosition = useSharedValue(-30);
+  const signUpPosition = useSharedValue(30);
+
+  useEffect(() => {
+    imagePosition.value = withTiming(0, {
+      duration: 500,
+      easing: Easing.bounce,
+    });
+
+    signUpPosition.value = withTiming(0, {
+      duration: 500,
+      easing: Easing.bounce,
+    });
+  }, []);
+
+  const imageStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: imagePosition.value }],
+    };
+  });
+
+  const signUnStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: signUpPosition.value }],
+    };
+  });
 
   const handleSubmit = useCallback(() => {
     console.log('submit');
@@ -29,7 +60,15 @@ const Login: React.FC = () => {
     <Container>
       <PatinsBackground source={signInBackground} />
       <Content>
-        <LogoImage source={logoImg} />
+        <Animated.Image
+          style={[
+            {
+              marginBottom: 56,
+            },
+            imageStyle,
+          ]}
+          source={logoImg}
+        />
 
         <Form ref={formRef} onSubmit={handleSubmit}>
           <Input
@@ -65,7 +104,7 @@ const Login: React.FC = () => {
           </Button>
         </Form>
 
-        <SignUpContainer>
+        <SignUpContainer style={signUnStyle}>
           <SignUpDescripion>Não possui uma conta?</SignUpDescripion>
           <SignUpRedirect>Cadastre-se</SignUpRedirect>
         </SignUpContainer>

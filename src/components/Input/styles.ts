@@ -1,4 +1,5 @@
 import { Feather } from '@expo/vector-icons';
+import { Platform } from 'react-native';
 import styled, { css } from 'styled-components/native';
 
 interface ContainerProps {
@@ -13,7 +14,13 @@ export const Container = styled.View<ContainerProps>`
   background: #f9f9f9;
   margin-bottom: 24px;
   border-radius: 16px;
-  box-shadow: 5px 4px 10px #c4c4c4;
+  ${Platform.OS === 'ios'
+    ? css`
+        box-shadow: 5px 4px 10px #c4c4c4;
+      `
+    : css`
+        elevation: 4;
+      `}
   flex-direction: row;
   align-items: center;
 

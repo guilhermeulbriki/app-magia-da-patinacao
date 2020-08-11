@@ -1,5 +1,6 @@
+import { Platform } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
-import styled from 'styled-components/native';
+import styled, { css } from 'styled-components/native';
 
 export const Container = styled(RectButton)`
   width: 100%;
@@ -8,8 +9,13 @@ export const Container = styled(RectButton)`
   background: #00a3e4;
   border-radius: 16px;
   margin-top: 24px;
-  box-shadow: 5px 4px 10px rgba(22, 33, 39, 0.25);
-
+  ${Platform.OS === 'ios'
+    ? css`
+        box-shadow: 5px 4px 10px #c4c4c4;
+      `
+    : css`
+        elevation: 4;
+      `}
   justify-content: center;
   align-items: center;
 `;
