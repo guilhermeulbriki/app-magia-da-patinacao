@@ -1,11 +1,11 @@
-import React from 'react';
-import { Image } from 'react-native';
+import React from "react";
+import { Image } from "react-native";
 
-import avatarImg from '../../assets/avatar.png';
-import avatarBack from '../../assets/avatar_background.png';
-import logoImg from '../../assets/logo_menor.png';
-import { useAuth } from '../../hooks/Auth';
-import putFirstLetterUperCase from '../../utils/putFirstLetterUperCase';
+import avatarImg from "../../assets/avatar.png";
+import avatarBack from "../../assets/avatar_background.png";
+import logoImg from "../../assets/logo_menor.png";
+import { useAuth } from "../../hooks/Auth";
+import putFirstLetterUperCase from "../../utils/putFirstLetterUperCase";
 import {
   Container,
   Header,
@@ -17,7 +17,7 @@ import {
   HeaderAvatarBack,
   HeaderAvatarImg,
   // eslint-disable-next-line import/namespace
-} from './styles';
+} from "./styles";
 
 const Dashboard: React.FC = () => {
   const { sponsor } = useAuth();
@@ -28,13 +28,16 @@ const Dashboard: React.FC = () => {
         style={{
           borderBottomLeftRadius: 48,
           borderBottomRightRadius: 48,
-        }}>
+        }}
+      >
         <HeaderInfo>
           <Image source={logoImg} />
 
           <HeaderWelcome>
             <HeaderWelcomeText>Bem vindo</HeaderWelcomeText>
-            <HeaderWelcomeSponsor>{putFirstLetterUperCase(sponsor.name)}</HeaderWelcomeSponsor>
+            <HeaderWelcomeSponsor>
+              {putFirstLetterUperCase(sponsor.name)}
+            </HeaderWelcomeSponsor>
           </HeaderWelcome>
         </HeaderInfo>
         <HeaderAvatar>

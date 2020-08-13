@@ -25,6 +25,7 @@ import {
   SignUpRedirect,
   PatinsBackground,
 } from './styles';
+import { Link } from '@react-navigation/native';
 
 interface SignInData {
   email: string;
@@ -140,14 +141,17 @@ const Login: React.FC = () => {
           <Button
             onPress={() => {
               formRef.current?.submitForm();
-            }}>
+            }}
+          >
             Logar
           </Button>
         </Form>
 
         <SignUpContainer style={signUnStyle}>
           <SignUpDescripion>Não possui uma conta?</SignUpDescripion>
-          <SignUpRedirect>Cadastre-se</SignUpRedirect>
+          <SignUpRedirect>
+            <Link to="/Register">Cadastre-se</Link>
+          </SignUpRedirect>
         </SignUpContainer>
       </Content>
     </Container>

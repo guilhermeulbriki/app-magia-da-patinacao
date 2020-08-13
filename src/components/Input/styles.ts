@@ -24,13 +24,13 @@ export const Container = styled.View<ContainerProps>`
   flex-direction: row;
   align-items: center;
 
-  ${props =>
+  ${(props) =>
     props.isErrored &&
     css`
       border-color: #eb5757;
     `}
 
-  ${props =>
+  ${(props) =>
     props.isFocused &&
     css`
       border-color: #00a3e4;
@@ -43,6 +43,7 @@ export const TextInput = styled.TextInput`
   font-size: 18px;
   font-family: 'Roboto_400Regular';
 `;
+
 export const Icon = styled(Feather)`
   margin-right: 16px;
 `;

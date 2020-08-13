@@ -1,7 +1,9 @@
-import React from 'react';
+import React from "react";
 
-import { AuthProvider } from './Auth';
+import { AuthProvider } from "./Auth";
 
-const AppProvider: React.FC = ({ children }) => <AuthProvider>{children}</AuthProvider>;
+const AppProvider: React.FC = ({ children }) => (
+  <AuthProvider>{children}</AuthProvider>
+);
 
 export default AppProvider;

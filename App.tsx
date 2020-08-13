@@ -26,7 +26,8 @@ const App: React.FC = () => {
           flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
-        }}>
+        }}
+      >
         <ActivityIndicator size="large" color="#00a3e4" />
       </View>
     );
