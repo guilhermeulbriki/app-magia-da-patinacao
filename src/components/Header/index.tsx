@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 import logoImg from '../../assets/logo_menor.png';
 import {
@@ -17,11 +18,13 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ title }) => {
+  const { goBack } = useNavigation();
+
   return (
     <Container>
       <Content>
         <Image source={logoImg} />
-        <HeaderBack>
+        <HeaderBack onPress={goBack}>
           <Feather name="arrow-left" size={18} color="#EAEAEA" />
           <HeaderBackText>Voltar</HeaderBackText>
         </HeaderBack>

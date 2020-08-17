@@ -139,6 +139,7 @@ const Login: React.FC = () => {
           />
 
           <Button
+            color="primary"
             onPress={() => {
               formRef.current?.submitForm();
             }}

@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components/native';
 import { Platform } from 'react-native';
+import { RectButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
   position: relative;
@@ -20,7 +21,7 @@ export const Content = styled.View`
       `}
 `;
 
-export const HeaderBack = styled.View`
+export const HeaderBack = styled(RectButton)`
   flex-direction: row;
   align-items: center;
 `;

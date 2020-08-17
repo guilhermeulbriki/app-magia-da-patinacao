@@ -40,7 +40,7 @@ export const Container = styled.View<ContainerProps>`
 export const TextInput = styled.TextInput`
   flex: 1;
   color: #4f4f4f;
-  font-size: 18px;
+  font-size: 16px;
   font-family: 'Roboto_400Regular';
 `;
 

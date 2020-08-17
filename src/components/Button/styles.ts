@@ -2,11 +2,23 @@ import { Platform } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
 import styled, { css } from 'styled-components/native';
 
-export const Container = styled(RectButton)`
+interface ButtonProps {
+  color: 'primary' | 'secondary';
+}
+
+export const Container = styled(RectButton)<ButtonProps>`
   width: 100%;
   min-width: 100%;
   height: 50px;
-  background: #00a3e4;
+  ${(props) =>
+    props.color === 'primary'
+      ? css`
+          background: #00a3e4;
+        `
+      : css`
+          background: #005678;
+        `}
+
   border-radius: 16px;
   margin-top: 24px;
   ${Platform.OS === 'ios'
