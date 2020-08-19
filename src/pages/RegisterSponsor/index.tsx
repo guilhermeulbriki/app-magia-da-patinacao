@@ -27,16 +27,17 @@ import { FormHandles, Scope } from '@unform/core';
 import getValidationError from '../../utils/getValidationError';
 import { format } from 'date-fns/esm';
 import getAgeByDate from '../../utils/getAgeByDate';
+import { useNavigation } from '@react-navigation/native';
 
 interface RegisterSponsor {
   name: string;
   password: string;
   email: string;
   born: Date;
-  rg: number;
-  cpf: number;
-  phone: number;
-  whatsapp?: number;
+  rg: string;
+  cpf: string;
+  phone: string;
+  whatsapp?: string;
   gender: 'masculino' | 'feminino';
   affiliation: 'pai' | 'mae' | 'outro' | 'aluno';
   address: {
@@ -60,6 +61,7 @@ const RegisterSponsor: React.FC = () => {
   const [isAdult, setIsAdult] = useState(false);
   const [isBlocked, setIsblocked] = useState(true);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const { navigate } = useNavigation();
 
   useEffect(() => {
     if (isAdult && affiliation.length > 0) {
@@ -124,12 +126,23 @@ const RegisterSponsor: React.FC = () => {
         await schema.validate(data, {
           abortEarly: false,
         });
+
+        const formatedData = {
+          gender,
+          born: new Date(born),
+          type: affiliation,
+          ...data,
+          number: Number(data.address.number),
+          cep: Number(data.address.cep),
+        };
+
+        navigate('RegisterStudent', { sponsorData: formatedData });
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
           const errors = getValidationError(err);
 
           formRef.current?.setErrors(errors);
-          console.log(errors);
+
           setFormHasError(true);
 
           return;
@@ -141,7 +154,7 @@ const RegisterSponsor: React.FC = () => {
         );
       }
     },
-    [gender]
+    [gender, born, affiliation]
   );
 
   const handleDateChange = useCallback((_: any, date: Date | undefined) => {

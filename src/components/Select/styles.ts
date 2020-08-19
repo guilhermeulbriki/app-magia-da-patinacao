@@ -14,6 +14,7 @@ export const Container = styled.View<ContainerProps>`
   flex: 1;
   color: #929292;
   padding: 0 16px;
+  margin-bottom: 24px;
   background: #f9f9f9;
   border-radius: 16px;
   ${Platform.OS === 'ios'

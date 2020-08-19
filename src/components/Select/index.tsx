@@ -10,6 +10,7 @@ interface SelectProps {
   placeholder: string;
   handleSelect: Function;
   error?: boolean;
+  defaultValue?: string;
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -17,8 +18,11 @@ const Select: React.FC<SelectProps> = ({
   placeholder,
   handleSelect,
   error,
+  defaultValue,
 }) => {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState(() => {
+    if (defaultValue && defaultValue.length > 0) return defaultValue;
+  });
   const [isFilled, setIsFilled] = useState(false);
 
   const handleValueChange = useCallback((value: string) => {
