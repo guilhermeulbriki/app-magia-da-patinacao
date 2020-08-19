@@ -2,7 +2,13 @@ import { TextInput, Platform } from 'react-native';
 import styled, { css } from 'styled-components/native';
 import { RectButton } from 'react-native-gesture-handler';
 
-export const Container = styled.View``;
+interface PickerButtonProps {
+  erro: boolean;
+}
+
+export const Container = styled.View`
+  position: relative;
+`;
 
 export const FormContent = styled.View`
   margin-top: 24px;
@@ -49,10 +55,52 @@ export const OpenDatePickerButton = styled(RectButton)`
   align-items: center;
 `;
 
-export const OpenDatePickerButtonText = styled.Text`
-  color: #929292;
+export const OpenDatePickerButtonText = styled.Text<PickerButtonProps>`
+  color: #4f4f4f;
   font-size: 16px;
   font-family: 'Roboto_400Regular';
+  ${(props) =>
+    props.erro &&
+    css`
+      color: #eb5757;
+    `}
 `;
 
 export const FormConditionalContent = styled.View``;
+
+export const FormBlockContent = styled.View`
+  width: 100%;
+  margin: 0 auto;
+  margin-top: 80px;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+`;
+
+export const FormBlockContentTop = styled.View`
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+`;
+
+export const FormBlockText = styled.Text`
+  font-family: 'Roboto_600Medium';
+  margin-left: 16px;
+  color: #00111f;
+  font-size: 16px;
+  line-height: 26px;
+`;
+
+export const FormBlockContentBottom = styled.Text`
+  text-align: center;
+  font-size: 14px;
+  line-height: 24px;
+  margin-top: 16px;
+`;
+
+export const ErrorMessage = styled.Text`
+  margin-top: 16px;
+  font-size: 16px;
+  color: #eb5757;
+  text-align: center;
+`;

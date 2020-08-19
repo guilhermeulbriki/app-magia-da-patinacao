@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { Picker } from '@react-native-community/picker';
 
-import { Container } from './styles';
+import { Container, SelectPicker } from './styles';
 
 interface SelectProps {
   items: Array<{
@@ -10,35 +9,41 @@ interface SelectProps {
   }>;
   placeholder: string;
   handleSelect: Function;
+  error?: boolean;
 }
 
 const Select: React.FC<SelectProps> = ({
   items,
   placeholder,
   handleSelect,
+  error,
 }) => {
   const [value, setValue] = useState('');
+  const [isFilled, setIsFilled] = useState(false);
 
   const handleValueChange = useCallback((value: string) => {
     handleSelect(value);
     setValue(value);
+
+    if (value !== '') setIsFilled(true);
   }, []);
 
   return (
-    <Container>
-      <Picker
-        style={{
-          color: '#929292',
-          fontSize: 24,
-        }}
+    <Container erro={!!error}>
+      <SelectPicker
+        isFilled={isFilled}
         selectedValue={value}
         onValueChange={(value) => handleValueChange(String(value))}
       >
-        <Picker.Item label={placeholder} value="" />
+        <SelectPicker.Item label={placeholder} value="" />
         {items.map((item) => (
-          <Picker.Item key={item.label} label={item.label} value={item.value} />
+          <SelectPicker.Item
+            key={item.label}
+            label={item.label}
+            value={item.value}
+          />
         ))}
-      </Picker>
+      </SelectPicker>
     </Container>
   );
 };

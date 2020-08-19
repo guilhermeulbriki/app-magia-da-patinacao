@@ -63,40 +63,43 @@ const Login: React.FC = () => {
     };
   });
 
-  const handleSubmit = useCallback(async (data: SignInData) => {
-    try {
-      formRef.current?.setErrors({});
+  const handleSubmit = useCallback(
+    async (data: SignInData) => {
+      try {
+        formRef.current?.setErrors({});
 
-      const schema = Yup.object().shape({
-        email: Yup.string()
-          .required('E-mail obrigatório')
-          .email('Digite um e-mail válido'),
-        password: Yup.string().required('Senha é obrigatória'),
-      });
+        const schema = Yup.object().shape({
+          email: Yup.string()
+            .required('E-mail obrigatório')
+            .email('Digite um e-mail válido'),
+          password: Yup.string().required('Senha é obrigatória'),
+        });
 
-      await schema.validate(data, {
-        abortEarly: false,
-      });
+        await schema.validate(data, {
+          abortEarly: false,
+        });
 
-      await signIn({
-        email: data.email,
-        password: data.password,
-      });
-    } catch (err) {
-      if (err instanceof Yup.ValidationError) {
-        const errors = getValidationError(err);
+        await signIn({
+          email: data.email,
+          password: data.password,
+        });
+      } catch (err) {
+        if (err instanceof Yup.ValidationError) {
+          const errors = getValidationError(err);
 
-        formRef.current?.setErrors(errors);
+          formRef.current?.setErrors(errors);
 
-        return;
+          return;
+        }
+
+        Alert.alert(
+          'Erro na autentificação',
+          'Ocorreu um erro ao fazer login, cheque as credenciais.'
+        );
       }
-
-      Alert.alert(
-        'Erro na autentificação',
-        'Ocorreu um erro ao fazer login, cheque as credenciais.'
-      );
-    }
-  }, []);
+    },
+    [signIn]
+  );
 
   return (
     <Container>
@@ -151,7 +154,7 @@ const Login: React.FC = () => {
         <SignUpContainer style={signUnStyle}>
           <SignUpDescripion>Não possui uma conta?</SignUpDescripion>
           <SignUpRedirect>
-            <Link to="/Register">Cadastre-se</Link>
+            <Link to="/RegisterSponsor">Cadastre-se</Link>
           </SignUpRedirect>
         </SignUpContainer>
       </Content>

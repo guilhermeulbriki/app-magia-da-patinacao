@@ -1,7 +1,16 @@
 import styled, { css } from 'styled-components/native';
 import { Platform } from 'react-native';
+import { Picker } from '@react-native-community/picker';
 
-export const Container = styled.View`
+interface ContainerProps {
+  erro: boolean;
+}
+
+interface PickerProps {
+  isFilled: boolean;
+}
+
+export const Container = styled.View<ContainerProps>`
   flex: 1;
   color: #929292;
   padding: 0 16px;
@@ -14,4 +23,21 @@ export const Container = styled.View`
     : css`
         elevation: 4;
       `}
+  ${(props) =>
+    props.erro &&
+    css`
+      border-width: 1px;
+      border-color: #eb5757;
+    `}
+`;
+
+export const SelectPicker = styled(Picker)<PickerProps>`
+  ${(props) =>
+    props.isFilled === true
+      ? css`
+          color: #4f4f4f;
+        `
+      : css`
+          color: #929292;
+        `}
 `;
