@@ -1,56 +1,34 @@
 import React, { useCallback } from 'react';
-import { EvilIcons } from '@expo/vector-icons';
+import { Image } from 'react-native';
+import { useAuth } from '../../hooks/Auth';
+import checkGif from '../../assets/check.gif';
+
+interface ParamsProps {
+  email: string;
+  password: string;
+}
 
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Container, Title, Description } from './styles';
 import Button from '../../components/Button';
 
-interface RouteParams {
-  studentData: {
-    name: string;
-    email: string;
-    born: Date;
-    rg: number;
-    cpf: number;
-    phone: number;
-    whatsapp?: number;
-    gender: 'masculino' | 'feminino';
-  };
-  sponsorData: {
-    name: string;
-    password: string;
-    email: string;
-    born: Date;
-    rg: string;
-    cpf: string;
-    phone: string;
-    whatsapp?: string;
-    gender: 'masculino' | 'feminino';
-    affiliation: 'pai' | 'mae' | 'outro' | 'aluno';
-    address: {
-      street: string;
-      neighborhood: string;
-      complement?: string;
-      number: number;
-      cep: number;
-      city: string;
-    };
-  };
-}
-
 const EnrollmentCreated: React.FC = () => {
   const { reset } = useNavigation();
   const { params } = useRoute();
+  const { signIn } = useAuth();
 
-  const routeParams = params as RouteParams;
+  const routeParams = params as ParamsProps;
 
   const handleButtonPressed = useCallback(() => {
-    console.log(routeParams);
-  }, []);
+    signIn({
+      email: routeParams.email,
+      password: routeParams.password,
+    });
+  }, [routeParams, signIn, reset]);
 
   return (
     <Container>
-      <EvilIcons name="check" size={156} color="#00A3E4" />
+      <Image source={checkGif} width={156} height={156} />
 
       <Title>Matrícula realizada</Title>
       <Description>Bem vindo ao clube Magia da patinação</Description>

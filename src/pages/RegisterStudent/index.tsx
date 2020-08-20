@@ -33,16 +33,18 @@ import api from '../../services/api';
 import CheckBox from '@react-native-community/checkbox';
 import putFirstLetterUperCase from '../../utils/putFirstLetterUperCase';
 import getValidationError from '../../utils/getValidationError';
+import getAgeByDate from '../../utils/getAgeByDate';
 
 interface RegisterStudent {
   name: string;
   email: string;
-  born: Date;
+  age: number;
   rg: number;
   cpf: number;
   phone: number;
   whatsapp?: number;
-  gender: 'masculino' | 'feminino';
+  gender: string;
+  group_id: string;
 }
 
 interface RouteParams {
@@ -90,7 +92,7 @@ const RegisterStudent: React.FC = () => {
   const [acceptThermes, setAcceptThermes] = useState(false);
 
   const formRef = useRef<FormHandles>(null);
-  const { navigate } = useNavigation();
+  const { navigate, reset } = useNavigation();
   const { params } = useRoute();
   const { sponsorData } = params as RouteParams;
 
@@ -184,7 +186,17 @@ const RegisterStudent: React.FC = () => {
 
         if (!errorGroup && !bornError && !errorGender) {
           setShowModal(true);
-          setStudentData(data);
+          setStudentData({
+            name: data.name,
+            email: data.email,
+            age: getAgeByDate(born),
+            group_id: selectedGroup,
+            rg: data.rg,
+            cpf: data.cpf,
+            phone: data.phone,
+            whatsapp: data.whatsapp,
+            gender: gender,
+          });
         }
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
@@ -208,10 +220,77 @@ const RegisterStudent: React.FC = () => {
 
   const confirmSubmit = useCallback(() => {
     if (acceptThermes) {
-      setShowModal(false);
-      navigate('EnrollmentCreated', { studentData, sponsorData });
+      try {
+        api
+          .post('sponsors', sponsorData)
+          .then((createdSponsor) => {
+            api
+              .post('sessions/sponsor', {
+                email: sponsorData.email,
+                password: sponsorData.password,
+              })
+              .then((bearerSponsorToken) => {
+                api
+                  .post('students', studentData, {
+                    headers: {
+                      Authorization: `Bearer ${bearerSponsorToken.data.token}`,
+                    },
+                  })
+                  .then((createdStudent) => {
+                    api
+                      .post('enrollments', null, {
+                        params: { student_id: createdStudent.data.id },
+                        headers: {
+                          Authorization: `Bearer ${bearerSponsorToken.data.token}`,
+                        },
+                      })
+                      .then((createdEnrollment) => {
+                        setShowModal(false);
+                        reset({
+                          routes: [
+                            {
+                              name: 'EnrollmentCreated',
+                              params: {
+                                email: sponsorData.email,
+                                password: sponsorData.password,
+                              },
+                            },
+                          ],
+                          index: 0,
+                        });
+                      })
+                      .catch((err) => {
+                        Alert.alert(
+                          'Erro ao efetuar a matrícula',
+                          err.response.data.message
+                        );
+                      });
+                  })
+                  .catch((err) => {
+                    Alert.alert(
+                      'Erro ao cadastrar o aluno',
+                      err.response.data.message
+                    );
+                  });
+              })
+              .catch((err) => {
+                Alert.alert(
+                  'Erro ao efetuar o login do responsável',
+                  err.response.data.message
+                );
+              });
+          })
+          .catch((err) => {
+            Alert.alert(
+              'Erro ao cadastrar o responsável',
+              err.response.data.message
+            );
+          });
+      } catch (err) {
+        Alert.alert('Erro ao realizar a matrícula', err);
+      }
     }
-  }, [acceptThermes, navigate]);
+  }, [acceptThermes, navigate, sponsorData, studentData, reset]);
 
   return (
     <>
