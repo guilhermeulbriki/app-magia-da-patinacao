@@ -1,10 +1,5 @@
-import React, {
-  useCallback,
-  useRef,
-  useState,
-  useEffect,
-  useMemo,
-} from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
+import { Platform, ScrollView, Alert, Modal } from 'react-native';
 import { FormHandles } from '@unform/core';
 import { Form } from '@unform/mobile';
 import { Fontisto } from '@expo/vector-icons';
@@ -18,14 +13,24 @@ import {
   OpenDatePickerButton,
   OpenDatePickerButtonText,
   ErrorMessage,
+  ModalContainer,
+  ModalTitle,
+  ModalText,
+  ModalValidation,
+  ModalClose,
+  ModalValitationThermes,
+  CheckText,
+  ModalValitationClock,
+  ConfirmButton,
+  ConfirmButtonText,
 } from './styles';
 import Header from '../../components/Header';
-import { Platform, ScrollView, Alert } from 'react-native';
 import Input from '../../components/Input';
 import Select from '../../components/Select';
 import Button from '../../components/Button';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import api from '../../services/api';
+import CheckBox from '@react-native-community/checkbox';
 import putFirstLetterUperCase from '../../utils/putFirstLetterUperCase';
 import getValidationError from '../../utils/getValidationError';
 
@@ -73,12 +78,19 @@ const RegisterStudent: React.FC = () => {
   const [gender, setGender] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [errorGender, setErrorGender] = useState(false);
+  const [errorGroup, setErrorGroup] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState('');
   const [groups, setGroups] = useState<Groups[]>([]);
   const [formHasError, setFormHasError] = useState(false);
   const [bornError, setBornError] = useState(false);
-  const [defaultValues, setDefaultValues] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [studentData, setStudentData] = useState<RegisterStudent>(
+    {} as RegisterStudent
+  );
+  const [acceptThermes, setAcceptThermes] = useState(false);
 
   const formRef = useRef<FormHandles>(null);
+  const { navigate } = useNavigation();
   const { params } = useRoute();
   const { sponsorData } = params as RouteParams;
 
@@ -97,15 +109,6 @@ const RegisterStudent: React.FC = () => {
 
   useEffect(() => {
     if (sponsorData.type === 'aluno') {
-      setDefaultValues({
-        name: sponsorData.name,
-        email: sponsorData.email,
-        cpf: sponsorData.cpf,
-        rg: sponsorData.rg,
-        phone: sponsorData.phone,
-        whatsapp: sponsorData.whatsapp,
-      });
-
       setBorn(sponsorData.born);
       setGender(sponsorData.gender);
     }
@@ -129,12 +132,21 @@ const RegisterStudent: React.FC = () => {
     setGender(value);
   }, []);
 
+  const handleSelectGroup = useCallback((value: string) => {
+    setSelectedGroup(value);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setShowModal(false);
+  }, []);
+
   const handleSubmit = useCallback(
     async (data: RegisterStudent) => {
       try {
         formRef.current?.setErrors({});
         setFormHasError(false);
         setBornError(false);
+        setErrorGroup(false);
 
         const schema = Yup.object().shape({
           name: Yup.string().required('Nome obrigatório'),
@@ -162,11 +174,18 @@ const RegisterStudent: React.FC = () => {
           setErrorGender(true);
         }
 
+        if (selectedGroup.length === 0) setErrorGroup(true);
+
         if (getYear(born) === getYear(new Date())) setBornError(true);
 
         await schema.validate(data, {
           abortEarly: false,
         });
+
+        if (!errorGroup && !bornError && !errorGender) {
+          setShowModal(true);
+          setStudentData(data);
+        }
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
           const errors = getValidationError(err);
@@ -184,84 +203,156 @@ const RegisterStudent: React.FC = () => {
         );
       }
     },
-    [gender]
+    [gender, errorGroup, bornError, errorGender, born, selectedGroup]
   );
 
+  const confirmSubmit = useCallback(() => {
+    if (acceptThermes) {
+      setShowModal(false);
+      navigate('EnrollmentCreated', { studentData, sponsorData });
+    }
+  }, [acceptThermes, navigate]);
+
   return (
-    <Container>
-      <Header title="Matrícula do Aluno" />
+    <>
+      <Container modalShowed={showModal}>
+        <Header title="Matrícula do Aluno" />
 
-      <ScrollView
-        contentContainerStyle={{
-          paddingBottom: 140,
-        }}
-      >
-        <Form initialData={defaultValues} ref={formRef} onSubmit={handleSubmit}>
-          <FormContent>
-            <FormTitle>Informações do aluno:</FormTitle>
-            <OpenDatePickerButton onPress={handleToggleDatePicker}>
-              <OpenDatePickerButtonText erro={bornError}>
-                {format(born, 'dd/MM/yyyy')}
-              </OpenDatePickerButtonText>
+        <ScrollView
+          contentContainerStyle={{
+            paddingBottom: 140,
+          }}
+        >
+          <Form
+            initialData={sponsorData.type === 'aluno' ? sponsorData : {}}
+            ref={formRef}
+            onSubmit={handleSubmit}
+          >
+            <FormContent>
+              <FormTitle>Informações do aluno:</FormTitle>
+              <OpenDatePickerButton onPress={handleToggleDatePicker}>
+                <OpenDatePickerButtonText erro={bornError}>
+                  {format(born, 'dd/MM/yyyy')}
+                </OpenDatePickerButtonText>
 
-              <Fontisto name="date" size={18} color="#005678" />
-            </OpenDatePickerButton>
+                <Fontisto name="date" size={18} color="#005678" />
+              </OpenDatePickerButton>
 
-            {showDatePicker && (
-              <DateTimePicker
-                mode="date"
-                display="calendar"
-                onChange={handleDateChange}
-                value={born}
+              {showDatePicker && (
+                <DateTimePicker
+                  mode="date"
+                  display="calendar"
+                  onChange={handleDateChange}
+                  value={born}
+                />
+              )}
+              <Input name="name" placeholder="Nome completo" />
+              <Select
+                error={errorGroup}
+                handleSelect={handleSelectGroup}
+                items={groups}
+                placeholder="Turma"
               />
-            )}
-            <Input name="name" placeholder="Nome completo" />
-            <Select
-              error={errorGender}
-              handleSelect={handleSelectGender}
-              items={groups}
-              placeholder="Turma"
-            />
-            <Input name="email" placeholder="E-mail" />
-            <Input name="cpf" placeholder="CPF" />
-            <Input name="rg" placeholder="RG" />
-            <Input name="phone" placeholder="Telefone" />
-            <Input name="whatsapp" placeholder="WhatsApp" />
-            <Select
-              error={errorGender}
-              defaultValue={
-                sponsorData.type === 'aluno' ? sponsorData.gender : ''
-              }
-              handleSelect={handleSelectGender}
-              items={[
-                {
-                  label: 'Masculino',
-                  value: 'masculino',
-                },
-                {
-                  label: 'Feminino',
-                  value: 'feminino',
-                },
-              ]}
-              placeholder="Sexo"
-            />
+              <Input name="email" placeholder="E-mail" />
+              <Input name="cpf" placeholder="CPF" />
+              <Input name="rg" placeholder="RG" />
+              <Input name="phone" placeholder="Telefone" />
+              <Input name="whatsapp" placeholder="WhatsApp" />
+              <Select
+                error={errorGender}
+                defaultValue={
+                  sponsorData.type === 'aluno' ? sponsorData.gender : ''
+                }
+                handleSelect={handleSelectGender}
+                items={[
+                  {
+                    label: 'Masculino',
+                    value: 'masculino',
+                  },
+                  {
+                    label: 'Feminino',
+                    value: 'feminino',
+                  },
+                ]}
+                placeholder="Sexo"
+              />
 
-            {formHasError && (
-              <ErrorMessage>
-                Ops, corrija os campos destacados e tente novamente
-              </ErrorMessage>
-            )}
+              {formHasError ||
+                bornError ||
+                errorGender ||
+                (errorGroup && (
+                  <ErrorMessage>
+                    Ops, corrija os campos destacados e tente novamente
+                  </ErrorMessage>
+                ))}
 
-            <Button
-              onPress={() => formRef.current?.submitForm()}
-              color="secondary"
-            >
-              Avançar
-            </Button>
-          </FormContent>
-        </Form>
-      </ScrollView>
-    </Container>
+              <Button
+                onPress={() => formRef.current?.submitForm()}
+                color="secondary"
+              >
+                Avançar
+              </Button>
+            </FormContent>
+          </Form>
+        </ScrollView>
+      </Container>
+      <Modal
+        onRequestClose={closeModal}
+        transparent={true}
+        visible={showModal}
+        animationType="slide"
+      >
+        <ScrollView>
+          <ModalContainer>
+            <ModalClose
+              onPress={closeModal}
+              name="close"
+              color="#FA1111"
+              size={24}
+            />
+            <ModalTitle>TERMO DE ADESÃO DE ASSOCIADO - 2020</ModalTitle>
+            <ModalText>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
+              orci dolor, maximus vel dui vel, pulvinar ultricies nulla. Cras
+              eros mi, molestie nec ornare id, finibus ut urna. Aenean in justo
+              scelerisque, tempus erat vel, sodales est. Suspendisse eget sapien
+              elementum, egestas eros sed, tristique risus. Vivamus vel pharetra
+              elit, sit amet posuere lacus. Etiam id elementum ex. Nunc placerat
+              turpis at tristique ultrices. Integer quis erat ut lectus sagittis
+              pulvinar. Nam diam lorem, pretium a ligula ut, sodales luctus est.
+              Sed nec orci et metus porttitor viverra. Lorem ipsum dolor sit
+              amet, consectetur adipiscing elit. Sed non erat tincidunt,
+              suscipit mauris ut, varius justo. Lorem ipsum dolor sit amet,
+              consectetur adipiscing elit. Integer orci dolor, maximus vel dui
+              vel, pulvinar ultricies nulla. Cras eros mi, molestie nec ornare
+              id, finibus ut urna. Aenean in justo scelerisque, tempus erat vel,
+              sodales est. Suspendisse eget sapien elementum, egestas eros sed,
+              tristique risus. Vivamus vel pharetra elit, sit amet posuere
+              lacus. Etiam id elementum ex. Nunc placerat turpis at tristique
+              ultrices. Integer quis erat ut lectus sagittis pulvinar. Nam diam
+              lorem, pretium a ligula ut, sodales luctus est. Sed nec orci et
+              metus porttitor viverra. Lorem ipsum dolor sit amet, consectetur
+              adipiscing elit. Sed non erat tincidunt, suscipit mauris ut,
+              varius justo.
+            </ModalText>
+            <ModalValidation>
+              <ModalValitationThermes>
+                <CheckBox
+                  disabled={false}
+                  value={acceptThermes}
+                  onValueChange={(value) => setAcceptThermes(value)}
+                />
+                <CheckText>Aceito os termos</CheckText>
+              </ModalValitationThermes>
+              <ModalValitationClock>00:00</ModalValitationClock>
+            </ModalValidation>
+            <ConfirmButton onPress={confirmSubmit}>
+              <ConfirmButtonText>Matricular</ConfirmButtonText>
+            </ConfirmButton>
+          </ModalContainer>
+        </ScrollView>
+      </Modal>
+    </>
   );
 };
 
