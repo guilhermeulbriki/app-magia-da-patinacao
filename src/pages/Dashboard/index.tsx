@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Image } from "react-native";
+import { Feather } from "@expo/vector-icons";
 
 import avatarImg from "../../assets/avatar.png";
 import avatarBack from "../../assets/avatar_background.png";
@@ -32,8 +33,19 @@ import {
   ScheduleDayContent,
   ScheduleDay,
   ScheduleTime,
+  HeaderOptions,
+  HeaderOption,
+  UpdateEnrollment,
+  UpdateEnrollmentTitle,
+  UpdateEnrollmentButton,
 } from "./styles";
 import api from "../../services/api";
+import {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
 
 interface ISchedules {
   studentName: string;
@@ -46,46 +58,111 @@ interface ISchedules {
 }
 
 const Dashboard: React.FC = () => {
-  const { sponsor } = useAuth();
+  const [openMenuOptions, setOpenMenuOptions] = useState(false);
+  const { sponsor, signOut, token } = useAuth();
   const [students, setStudents] = useState([]);
   const [schedules, setSchedules] = useState<ISchedules[]>([]);
 
+  const headerHeight = useSharedValue(158);
+  const optionsOpacity = useSharedValue(0);
+
+  const headerStyle = useAnimatedStyle(() => {
+    return {
+      height: headerHeight.value,
+    };
+  });
+
+  const optionsStyle = useAnimatedStyle(() => {
+    return {
+      opacity: optionsOpacity.value,
+    };
+  });
+
+  const handleToggleOpenMenuOptions = useCallback(() => {
+    if (openMenuOptions) {
+      optionsOpacity.value = withTiming(
+        0,
+        {
+          duration: 100,
+          easing: Easing.ease,
+        },
+        () => {
+          headerHeight.value = withTiming(180, {
+            duration: 400,
+            easing: Easing.ease,
+          });
+        }
+      );
+    } else {
+      headerHeight.value = withTiming(
+        570,
+        {
+          duration: 400,
+          easing: Easing.ease,
+        },
+        () => {
+          optionsOpacity.value = withTiming(1, {
+            duration: 100,
+            easing: Easing.ease,
+          });
+        }
+      );
+    }
+
+    setOpenMenuOptions(!openMenuOptions);
+  }, [openMenuOptions, headerHeight]);
+
   useEffect(() => {
-    api.get(`students/by-sponsor/${sponsor.id}`).then((response) => {
-      setStudents(response.data);
+    api
+      .get(`students/by-sponsor/${sponsor.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setStudents(response.data);
 
-      let getSchedules = {} as ISchedules;
+        let getSchedules = {} as ISchedules;
 
-      response.data.forEach(async (student) => {
-        await api.get(`groups/${student.group_id}`).then((responseGroups) => {
-          getSchedules = {
-            studentName: student.name,
-            schedules: responseGroups.data.schedules,
-          };
-        });
+        response.data.forEach(async (student) => {
+          await api
+            .get(`groups/${student.group_id}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
+            .then((responseGroups) => {
+              getSchedules = {
+                studentName: student.name,
+                schedules: responseGroups.data.schedules,
+              };
+            });
 
-        setSchedules((oldValue) => {
-          const searchResult = oldValue.find(
-            (value) => value.studentName === student.name
-          );
+          setSchedules((oldValue) => {
+            const searchResult = oldValue.find(
+              (value) => value.studentName === student.name
+            );
 
-          if (!searchResult) {
-            return [...oldValue, getSchedules];
-          } else {
-            return [...oldValue];
-          }
+            if (!searchResult) {
+              return [...oldValue, getSchedules];
+            } else {
+              return [...oldValue];
+            }
+          });
         });
       });
-    });
   }, [sponsor]);
 
   return (
     <Container>
       <Header
-        style={{
-          borderBottomLeftRadius: 48,
-          borderBottomRightRadius: 48,
-        }}
+        style={[
+          {
+            borderBottomLeftRadius: 48,
+            borderBottomRightRadius: 48,
+          },
+          headerStyle,
+        ]}
       >
         <HeaderInfo>
           <Image source={logoImg} />
@@ -97,7 +174,20 @@ const Dashboard: React.FC = () => {
             </HeaderWelcomeSponsor>
           </HeaderWelcome>
         </HeaderInfo>
-        <HeaderAvatar>
+        <HeaderOptions style={optionsStyle}>
+          <HeaderOption>Informações do seu perfil</HeaderOption>
+          <HeaderOption>Perfil dos alunos</HeaderOption>
+          <HeaderOption>Desvincular-se do clube</HeaderOption>
+          <HeaderOption onPress={signOut}>Sair</HeaderOption>
+
+          <UpdateEnrollment>
+            <UpdateEnrollmentTitle>Rematrículas abertas</UpdateEnrollmentTitle>
+            <UpdateEnrollmentButton>
+              <Feather name="arrow-right" size={24} color="#eb5757" />
+            </UpdateEnrollmentButton>
+          </UpdateEnrollment>
+        </HeaderOptions>
+        <HeaderAvatar onPress={handleToggleOpenMenuOptions}>
           <HeaderAvatarBack
             needToUpdateEnrollment
             style={{

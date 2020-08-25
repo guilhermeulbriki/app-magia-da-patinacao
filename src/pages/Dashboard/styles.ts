@@ -1,5 +1,6 @@
 import { RectButton, ScrollView } from "react-native-gesture-handler";
 import styled, { css } from "styled-components/native";
+import Animated from "react-native-reanimated";
 
 interface IHeaderAvatarBackProps {
   needToUpdateEnrollment: boolean;
@@ -9,12 +10,11 @@ export const Container = styled.View`
   flex: 1;
 `;
 
-export const Header = styled.View`
+export const Header = styled(Animated.View)`
   background: #005678;
   padding: 32px 16px 0;
   margin-bottom: 32px;
   align-items: center;
-  height: 158px;
   position: relative;
   z-index: 1;
 `;
@@ -42,8 +42,45 @@ export const HeaderWelcomeSponsor = styled.Text`
   font-family: "Roboto_700Bold";
 `;
 
-export const HeaderAvatar = styled.View`
-  position: relative;
+export const HeaderOptions = styled(Animated.View)`
+  margin-top: 24px;
+`;
+
+export const HeaderOption = styled.Text`
+  text-align: center;
+  color: #eaeaea;
+  font-size: 21px;
+  font-family: "Roboto_500Medium";
+  margin-bottom: 24px;
+`;
+
+export const UpdateEnrollment = styled.View`
+  align-items: center;
+  margin-bottom: 98px;
+  margin-top: 24px;
+`;
+
+export const UpdateEnrollmentTitle = styled.Text`
+  font-size: 28px;
+  color: #eb5757;
+  font-family: "Roboto_700Bold";
+  max-width: 200px;
+  text-align: center;
+`;
+
+export const UpdateEnrollmentButton = styled(RectButton)`
+  background: #f2f2f2;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  margin-top: 24px;
+`;
+
+export const HeaderAvatar = styled(RectButton)`
+  position: absolute;
+  bottom: -24px;
 `;
 
 export const HeaderAvatarBack = styled.Image<IHeaderAvatarBackProps>`
