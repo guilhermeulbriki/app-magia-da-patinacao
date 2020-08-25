@@ -11,15 +11,18 @@ import { ActivityIndicator, View } from 'react-native';
 
 import AppProvider from './src/hooks';
 import Routes from './src/routes';
+import { useAuth } from './src/hooks/Auth';
 
 const App: React.FC = () => {
+  const { loading } = useAuth();
+
   const [fontsLoaded] = useFonts({
     Roboto_400Regular,
     Roboto_500Medium,
     Roboto_700Bold,
   });
 
-  if (!fontsLoaded) {
+  if (!fontsLoaded || loading) {
     return (
       <View
         style={{

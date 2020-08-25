@@ -1,13 +1,14 @@
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from '@react-native-community/async-storage';
 import React, {
   createContext,
   useCallback,
   useState,
   useContext,
   useEffect,
-} from "react";
+} from 'react';
+import jwtDecode from 'jwt-decode';
 
-import api from "../services/api";
+import api from '../services/api';
 
 interface Sponsor {
   id: string;
@@ -48,6 +49,10 @@ interface AuthState {
   sponsor: Sponsor;
 }
 
+interface IDecodedToken {
+  exp: number;
+}
+
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export const AuthProvider: React.FC = ({ children }) => {
@@ -57,14 +62,21 @@ export const AuthProvider: React.FC = ({ children }) => {
   useEffect(() => {
     async function loadStoraged(): Promise<void> {
       const [token, sponsor] = await AsyncStorage.multiGet([
-        "@Patinacao:token",
-        "@Patinacao:user",
+        '@Patinacao:token',
+        '@Patinacao:sponsor',
       ]);
 
       if (token[1] && sponsor[1]) {
-        api.defaults.headers.authorization = `Bearer ${token[1]}`;
+        const currentDate = new Date().getTime();
+        const decodedToken = jwtDecode<IDecodedToken>(token[1]);
 
-        setData({ token: token[1], sponsor: JSON.parse(sponsor[1]) });
+        const exp = `${decodedToken.exp}000`;
+
+        if (Number(exp) > currentDate) {
+          api.defaults.headers.authorization = `Bearer ${token[1]}`;
+
+          setData({ token: token[1], sponsor: JSON.parse(sponsor[1]) });
+        }
       }
 
       setLoading(false);
@@ -74,7 +86,7 @@ export const AuthProvider: React.FC = ({ children }) => {
   }, []);
 
   const signIn = useCallback(async ({ email, password }) => {
-    const response = await api.post("sessions/sponsor", {
+    const response = await api.post('sessions/sponsor', {
       email,
       password,
     });
@@ -82,8 +94,8 @@ export const AuthProvider: React.FC = ({ children }) => {
     const { token, sponsor } = response.data;
 
     await AsyncStorage.multiSet([
-      ["@Patinacao:token", token],
-      ["@Patinacao:sponsor", JSON.stringify(sponsor)],
+      ['@Patinacao:token', token],
+      ['@Patinacao:sponsor', JSON.stringify(sponsor)],
     ]);
 
     api.defaults.headers.authorization = `Bearer ${token[1]}`;
@@ -92,14 +104,14 @@ export const AuthProvider: React.FC = ({ children }) => {
   }, []);
 
   const signOut = useCallback(async () => {
-    await AsyncStorage.multiRemove(["@Patinacao:token", "@Patinacao:sponsor"]);
+    await AsyncStorage.multiRemove(['@Patinacao:token', '@Patinacao:sponsor']);
 
     setData({} as AuthState);
   }, []);
 
   const updateSponsor = useCallback(
     async (sponsor: Sponsor) => {
-      await AsyncStorage.setItem("@Patinacao:sponsor", JSON.stringify(sponsor));
+      await AsyncStorage.setItem('@Patinacao:sponsor', JSON.stringify(sponsor));
 
       setData({
         token: data.token,
@@ -122,7 +134,7 @@ export function useAuth(): AuthContextData {
   const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
 
   return context;
