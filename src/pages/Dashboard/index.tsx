@@ -1,6 +1,16 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Image } from "react-native";
+import { Image, View, ActivityIndicator } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import api from "../../services/api";
+import {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
+import Schedule from "../../components/Schedule";
+import { useAuth } from "../../hooks/Auth";
+import putFirstLetterUperCase from "../../utils/putFirstLetterUperCase";
 
 import avatarImg from "../../assets/avatar.png";
 import avatarBack from "../../assets/avatar_background.png";
@@ -8,8 +18,6 @@ import logoImg from "../../assets/logo_menor.png";
 import backCards from "../../assets/backCards.png";
 import hourglass from "../../assets/hourglass.png";
 import trophy from "../../assets/trophy.png";
-import { useAuth } from "../../hooks/Auth";
-import putFirstLetterUperCase from "../../utils/putFirstLetterUperCase";
 import {
   Container,
   Header,
@@ -27,25 +35,13 @@ import {
   CardImage,
   CardBackground,
   Schedules,
-  Schedule,
   SchedulesTitle,
-  ScheduleName,
-  ScheduleDayContent,
-  ScheduleDay,
-  ScheduleTime,
   HeaderOptions,
   HeaderOption,
   UpdateEnrollment,
   UpdateEnrollmentTitle,
   UpdateEnrollmentButton,
 } from "./styles";
-import api from "../../services/api";
-import {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  Easing,
-} from "react-native-reanimated";
 
 interface ISchedules {
   studentName: string;
@@ -63,7 +59,7 @@ const Dashboard: React.FC = () => {
   const [students, setStudents] = useState([]);
   const [schedules, setSchedules] = useState<ISchedules[]>([]);
 
-  const headerHeight = useSharedValue(158);
+  const headerHeight = useSharedValue(148);
   const optionsOpacity = useSharedValue(0);
 
   const headerStyle = useAnimatedStyle(() => {
@@ -87,7 +83,7 @@ const Dashboard: React.FC = () => {
           easing: Easing.ease,
         },
         () => {
-          headerHeight.value = withTiming(180, {
+          headerHeight.value = withTiming(148, {
             duration: 400,
             easing: Easing.ease,
           });
@@ -227,25 +223,26 @@ const Dashboard: React.FC = () => {
 
         <Schedules>
           <SchedulesTitle>Horário das aulas</SchedulesTitle>
-
-          {schedules.map((schedule) => (
-            <Schedule key={schedule.studentName}>
-              <ScheduleName>
-                {putFirstLetterUperCase(schedule.studentName)}
-              </ScheduleName>
-
-              {schedule.schedules.map((scheduleTime) => (
-                <ScheduleDayContent key={scheduleTime.id}>
-                  <ScheduleDay>
-                    {putFirstLetterUperCase(scheduleTime.day)}:
-                  </ScheduleDay>
-                  <ScheduleTime>
-                    {scheduleTime.start} - {scheduleTime.finish}
-                  </ScheduleTime>
-                </ScheduleDayContent>
-              ))}
-            </Schedule>
-          ))}
+          {schedules.length === 0 ? (
+            <View
+              style={{
+                marginTop: 32,
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <ActivityIndicator size="large" color="#00a3e4" />
+            </View>
+          ) : (
+            schedules.map((schedule) => (
+              <Schedule
+                schedules={schedule.schedules}
+                studentName={schedule.studentName}
+                key={schedule.studentName}
+              />
+            ))
+          )}
         </Schedules>
       </Content>
     </Container>

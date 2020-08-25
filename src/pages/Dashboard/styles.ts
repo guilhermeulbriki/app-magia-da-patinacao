@@ -27,7 +27,6 @@ export const HeaderInfo = styled.View`
 
 export const HeaderWelcome = styled.View`
   align-items: flex-end;
-  margin-bottom: 24px;
 `;
 
 export const HeaderWelcomeText = styled.Text`
@@ -43,7 +42,7 @@ export const HeaderWelcomeSponsor = styled.Text`
 `;
 
 export const HeaderOptions = styled(Animated.View)`
-  margin-top: 24px;
+  margin-top: 32px;
 `;
 
 export const HeaderOption = styled.Text`
@@ -151,44 +150,4 @@ export const SchedulesTitle = styled.Text`
   font-family: "Roboto_700Bold";
   font-size: 21px;
   text-align: center;
-`;
-
-export const Schedule = styled.View`
-  margin-top: 16px;
-  width: 100%;
-`;
-
-export const ScheduleName = styled.Text`
-  color: #4f4f4f;
-  font-size: 16px;
-  margin-bottom: 16px;
-  font-family: "Roboto_500Medium";
-`;
-
-export const ScheduleDayContent = styled.View`
-  background: #dfdfdf;
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
-  height: 40px;
-  flex-direction: row;
-  align-items: center;
-  padding-left: 24px;
-  position: relative;
-  border-left-color: #00a3e4;
-  border-left-width: 4px;
-  margin-bottom: 8px;
-`;
-
-export const ScheduleDay = styled.Text`
-  color: #4f4f4f;
-  font-family: "Roboto_500Medium";
-  font-size: 16px;
-  width: 70px;
-  margin-right: 16px;
-`;
-
-export const ScheduleTime = styled.Text`
-  color: #005678;
-  font-family: "Roboto_500Medium";
-  font-size: 16px;
 `;
