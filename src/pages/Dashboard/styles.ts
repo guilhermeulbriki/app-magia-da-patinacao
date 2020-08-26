@@ -1,8 +1,13 @@
 import { RectButton, ScrollView } from "react-native-gesture-handler";
 import styled, { css } from "styled-components/native";
 import Animated from "react-native-reanimated";
+import { Link } from "@react-navigation/native";
 
 interface IHeaderAvatarBackProps {
+  needToUpdateEnrollment: boolean;
+}
+
+interface IHeaderEnrollmentProps {
   needToUpdateEnrollment: boolean;
 }
 
@@ -45,7 +50,7 @@ export const HeaderOptions = styled(Animated.View)`
   margin-top: 32px;
 `;
 
-export const HeaderOption = styled.Text`
+export const HeaderOption = styled(Link)`
   text-align: center;
   color: #eaeaea;
   font-size: 21px;
@@ -59,12 +64,18 @@ export const UpdateEnrollment = styled.View`
   margin-top: 24px;
 `;
 
-export const UpdateEnrollmentTitle = styled.Text`
+export const UpdateEnrollmentTitle = styled.Text<IHeaderEnrollmentProps>`
   font-size: 28px;
-  color: #eb5757;
+  color: #27ae60;
   font-family: "Roboto_700Bold";
   max-width: 200px;
   text-align: center;
+
+  ${(props) =>
+    props.needToUpdateEnrollment &&
+    css`
+      color: #eb5757;
+    `}
 `;
 
 export const UpdateEnrollmentButton = styled(RectButton)`
@@ -83,12 +94,12 @@ export const HeaderAvatar = styled(RectButton)`
 `;
 
 export const HeaderAvatarBack = styled.Image<IHeaderAvatarBackProps>`
-  border-color: #eb5757;
+  border-color: #27ae60;
 
   ${(props) =>
     props.needToUpdateEnrollment &&
     css`
-      border-color: #27ae60;
+      border-color: #eb5757;
     `}
 `;
 

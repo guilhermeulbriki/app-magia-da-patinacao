@@ -55,6 +55,7 @@ interface ISchedules {
 
 const Dashboard: React.FC = () => {
   const [openMenuOptions, setOpenMenuOptions] = useState(false);
+  const [needsUpdateEnrollment, setNeedsUpdateEnrollment] = useState(false);
   const { sponsor, signOut, token } = useAuth();
   const [students, setStudents] = useState([]);
   const [schedules, setSchedules] = useState<ISchedules[]>([]);
@@ -115,12 +116,24 @@ const Dashboard: React.FC = () => {
           Authorization: `Bearer ${token}`,
         },
       })
-      .then((response) => {
-        setStudents(response.data);
+      .then((responseStudents) => {
+        setStudents(responseStudents.data);
 
         let getSchedules = {} as ISchedules;
+        let needsUpdate = false;
 
-        response.data.forEach(async (student) => {
+        responseStudents.data.forEach(async (student) => {
+          await api
+            .get(`students/show/${student.id}`)
+            .then((responseProfile) => {
+              if (responseProfile.data.enrollment.status === "pending")
+                needsUpdate = true;
+            });
+
+          setNeedsUpdateEnrollment(needsUpdate);
+        });
+
+        responseStudents.data.forEach(async (student) => {
           await api
             .get(`groups/${student.group_id}`, {
               headers: {
@@ -171,21 +184,35 @@ const Dashboard: React.FC = () => {
           </HeaderWelcome>
         </HeaderInfo>
         <HeaderOptions style={optionsStyle}>
-          <HeaderOption>Informações do seu perfil</HeaderOption>
-          <HeaderOption>Perfil dos alunos</HeaderOption>
-          <HeaderOption>Desvincular-se do clube</HeaderOption>
-          <HeaderOption onPress={signOut}>Sair</HeaderOption>
+          <HeaderOption to="/UpdateSponsor">
+            Informações do seu perfil
+          </HeaderOption>
+          <HeaderOption to="/UpdateStudents">Perfil dos alunos</HeaderOption>
+          <HeaderOption to="/">Desvincular-se do clube</HeaderOption>
+          <HeaderOption to="/Dashboard" onPress={signOut}>
+            Sair
+          </HeaderOption>
 
           <UpdateEnrollment>
-            <UpdateEnrollmentTitle>Rematrículas abertas</UpdateEnrollmentTitle>
-            <UpdateEnrollmentButton>
-              <Feather name="arrow-right" size={24} color="#eb5757" />
+            <UpdateEnrollmentTitle
+              needToUpdateEnrollment={needsUpdateEnrollment}
+            >
+              {needsUpdateEnrollment === true
+                ? "Rematrículas abertas"
+                : "Matrículas em dia"}
+            </UpdateEnrollmentTitle>
+            <UpdateEnrollmentButton enabled={needsUpdateEnrollment}>
+              <Feather
+                name="arrow-right"
+                size={24}
+                color={needsUpdateEnrollment === true ? "#eb5757" : "#27ae60"}
+              />
             </UpdateEnrollmentButton>
           </UpdateEnrollment>
         </HeaderOptions>
         <HeaderAvatar onPress={handleToggleOpenMenuOptions}>
           <HeaderAvatarBack
-            needToUpdateEnrollment
+            needToUpdateEnrollment={needsUpdateEnrollment}
             style={{
               borderWidth: 4,
               borderRadius: 45,
