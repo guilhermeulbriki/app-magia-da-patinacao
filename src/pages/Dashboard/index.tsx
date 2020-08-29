@@ -42,6 +42,7 @@ import {
   UpdateEnrollmentTitle,
   UpdateEnrollmentButton,
 } from "./styles";
+import { useNavigation } from "@react-navigation/native";
 
 interface ISchedules {
   studentName: string;
@@ -56,9 +57,11 @@ interface ISchedules {
 const Dashboard: React.FC = () => {
   const [openMenuOptions, setOpenMenuOptions] = useState(false);
   const [needsUpdateEnrollment, setNeedsUpdateEnrollment] = useState(false);
-  const { sponsor, signOut, token } = useAuth();
   const [students, setStudents] = useState([]);
   const [schedules, setSchedules] = useState<ISchedules[]>([]);
+
+  const { sponsor, signOut, token } = useAuth();
+  const { navigate } = useNavigation();
 
   const headerHeight = useSharedValue(148);
   const optionsOpacity = useSharedValue(0);
@@ -109,57 +112,52 @@ const Dashboard: React.FC = () => {
     setOpenMenuOptions(!openMenuOptions);
   }, [openMenuOptions, headerHeight]);
 
+  const redirectByCard = useCallback(
+    (path: string) => {
+      navigate(path);
+    },
+    [navigate]
+  );
+
   useEffect(() => {
-    api
-      .get(`students/by-sponsor/${sponsor.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((responseStudents) => {
-        setStudents(responseStudents.data);
+    api.defaults.headers.authorization = `Bearer ${token}`;
 
-        let getSchedules = {} as ISchedules;
-        let needsUpdate = false;
+    api.get(`students/by-sponsor/${sponsor.id}`).then((responseStudents) => {
+      setStudents(responseStudents.data);
 
-        responseStudents.data.forEach(async (student) => {
-          await api
-            .get(`students/show/${student.id}`)
-            .then((responseProfile) => {
-              if (responseProfile.data.enrollment.status === "pending")
-                needsUpdate = true;
-            });
+      let getSchedules = {} as ISchedules;
+      let needsUpdate = false;
 
-          setNeedsUpdateEnrollment(needsUpdate);
+      responseStudents.data.forEach(async (student) => {
+        await api.get(`students/show/${student.id}`).then((responseProfile) => {
+          if (responseProfile.data.enrollment.status === "pending")
+            needsUpdate = true;
         });
 
-        responseStudents.data.forEach(async (student) => {
-          await api
-            .get(`groups/${student.group_id}`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            })
-            .then((responseGroups) => {
-              getSchedules = {
-                studentName: student.name,
-                schedules: responseGroups.data.schedules,
-              };
-            });
+        setNeedsUpdateEnrollment(needsUpdate);
+      });
 
-          setSchedules((oldValue) => {
-            const searchResult = oldValue.find(
-              (value) => value.studentName === student.name
-            );
+      responseStudents.data.forEach(async (student) => {
+        await api.get(`groups/${student.group_id}`).then((responseGroups) => {
+          getSchedules = {
+            studentName: student.name,
+            schedules: responseGroups.data.schedules,
+          };
+        });
 
-            if (!searchResult) {
-              return [...oldValue, getSchedules];
-            } else {
-              return [...oldValue];
-            }
-          });
+        setSchedules((oldValue) => {
+          const searchResult = oldValue.find(
+            (value) => value.studentName === student.name
+          );
+
+          if (!searchResult) {
+            return [...oldValue, getSchedules];
+          } else {
+            return [...oldValue];
+          }
         });
       });
+    });
   }, [sponsor]);
 
   return (
@@ -231,7 +229,7 @@ const Dashboard: React.FC = () => {
         }}
       >
         <CardsContent>
-          <Card>
+          <Card onPress={() => redirectByCard("Competitions")}>
             <CardTitle>Premiações</CardTitle>
 
             <CardBackground resizeMode="contain" source={backCards}>
@@ -239,7 +237,7 @@ const Dashboard: React.FC = () => {
             </CardBackground>
           </Card>
 
-          <Card>
+          <Card onPress={() => redirectByCard("Dashboard")}>
             <CardTitle>História do clube</CardTitle>
 
             <CardBackground resizeMode="contain" source={backCards}>
