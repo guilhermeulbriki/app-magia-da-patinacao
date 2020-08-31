@@ -78,6 +78,10 @@ const Dashboard: React.FC = () => {
     };
   });
 
+  const showStudentsProfile = useCallback(() => {
+    navigate("UpdateStudents", students);
+  }, [students]);
+
   const handleToggleOpenMenuOptions = useCallback(() => {
     if (openMenuOptions) {
       optionsOpacity.value = withTiming(
@@ -185,8 +189,10 @@ const Dashboard: React.FC = () => {
           <HeaderOption to="/UpdateSponsor">
             Informações do seu perfil
           </HeaderOption>
-          <HeaderOption to="/UpdateStudents">Perfil dos alunos</HeaderOption>
-          <HeaderOption to="/">Desvincular-se do clube</HeaderOption>
+          <HeaderOption to="/UpdateStudents" onPress={showStudentsProfile}>
+            Perfil dos alunos
+          </HeaderOption>
+          <HeaderOption to="/Dashboard">Desvincular-se do clube</HeaderOption>
           <HeaderOption to="/Dashboard" onPress={signOut}>
             Sair
           </HeaderOption>

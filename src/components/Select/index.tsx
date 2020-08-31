@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from "react";
 
-import { Container, SelectPicker } from './styles';
+import { Container, SelectPicker } from "./styles";
 
 interface SelectProps {
   items: Array<{
@@ -29,8 +29,12 @@ const Select: React.FC<SelectProps> = ({
     handleSelect(value);
     setValue(value);
 
-    if (value !== '') setIsFilled(true);
+    if (value !== "") setIsFilled(true);
   }, []);
+
+  useEffect(() => {
+    setValue(defaultValue);
+  }, [defaultValue]);
 
   return (
     <Container erro={!!error}>

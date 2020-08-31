@@ -325,7 +325,7 @@ const UpdateSponsor: React.FC = () => {
                   onPress={() => formRef.current?.submitForm()}
                   color="secondary"
                 >
-                  Avançar
+                  Atualizar dados
                 </Button>
               </FormConditionalContent>
             ) : (
