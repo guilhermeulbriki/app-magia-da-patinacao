@@ -49,6 +49,7 @@ export const Trophys = styled.View`
   width: 100%;
   padding: 0 32px;
   margin-top: 24px;
+  margin-bottom: 16px;
 `;
 
 export const Trophy = styled.Image<ITrophyProps>`
@@ -65,7 +66,7 @@ export const CompetitionsList = styled.View`
 `;
 
 export const CompetitionItem = styled.View<ICompetitionItemProps>`
-  margin-top: 16px;
+  margin-bottom: 16px;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
@@ -146,7 +147,6 @@ export const PaginationContent = styled.View`
   width: 100%;
   align-items: center;
   justify-content: flex-end;
-  margin-top: 16px;
 `;
 
 export const PaginationNumber = styled.Text`
