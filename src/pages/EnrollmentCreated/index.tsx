@@ -1,16 +1,16 @@
-import React, { useCallback } from 'react';
-import { Image } from 'react-native';
-import { useAuth } from '../../hooks/Auth';
-import checkGif from '../../assets/check.gif';
+import React, { useCallback } from "react";
+import { Image } from "react-native";
+import { useAuth } from "../../hooks/Auth";
+import checkGif from "../../assets/check.gif";
+
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { Container, Title, Description } from "./styles";
+import Button from "../../components/Button";
 
 interface ParamsProps {
   email: string;
   password: string;
 }
-
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { Container, Title, Description } from './styles';
-import Button from '../../components/Button';
 
 const EnrollmentCreated: React.FC = () => {
   const { reset } = useNavigation();

@@ -1,6 +1,6 @@
-import styled, { css } from 'styled-components/native';
-import { Platform } from 'react-native';
-import { Picker } from '@react-native-community/picker';
+import styled, { css } from "styled-components/native";
+import { Platform } from "react-native";
+import { Picker } from "@react-native-community/picker";
 
 interface ContainerProps {
   erro: boolean;
@@ -12,12 +12,13 @@ interface PickerProps {
 
 export const Container = styled.View<ContainerProps>`
   flex: 1;
+  min-height: 50px;
   color: #929292;
   padding: 0 16px;
   margin-bottom: 24px;
   background: #f9f9f9;
   border-radius: 16px;
-  ${Platform.OS === 'ios'
+  ${Platform.OS === "ios"
     ? css`
         box-shadow: 5px 4px 10px #c4c4c4;
       `

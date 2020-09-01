@@ -1,22 +1,23 @@
 /* eslint-disable no-unused-expressions */
-import { FormHandles } from '@unform/core';
-import { Form } from '@unform/mobile';
-import React, { useRef, useCallback, useEffect } from 'react';
-import { TextInput, Alert } from 'react-native';
+import { FormHandles } from "@unform/core";
+import { Link } from "@react-navigation/native";
+import { Form } from "@unform/mobile";
+import React, { useRef, useCallback, useEffect } from "react";
+import { TextInput, Alert } from "react-native";
 import Animated, {
   useSharedValue,
   withTiming,
   Easing,
   useAnimatedStyle,
-} from 'react-native-reanimated';
-import * as Yup from 'yup';
+} from "react-native-reanimated";
+import * as Yup from "yup";
 
-import logoImg from '../../assets/logo.png';
-import signInBackground from '../../assets/signInBackground.png';
-import Button from '../../components/Button';
-import Input from '../../components/Input';
-import { useAuth } from '../../hooks/Auth';
-import getValidationError from '../../utils/getValidationError';
+import logoImg from "../../assets/logo.png";
+import signInBackground from "../../assets/signInBackground.png";
+import Button from "../../components/Button";
+import Input from "../../components/Input";
+import { useAuth } from "../../hooks/Auth";
+import getValidationError from "../../utils/getValidationError";
 import {
   Container,
   Content,
@@ -24,8 +25,7 @@ import {
   SignUpDescripion,
   SignUpRedirect,
   PatinsBackground,
-} from './styles';
-import { Link } from '@react-navigation/native';
+} from "./styles";
 
 interface SignInData {
   email: string;
@@ -37,7 +37,7 @@ const Login: React.FC = () => {
   const passwordInputRef = useRef<TextInput>(null);
   const imagePosition = useSharedValue(-30);
   const signUpPosition = useSharedValue(30);
-  const { signIn } = useAuth();
+  const { signIn, loading } = useAuth();
 
   useEffect(() => {
     imagePosition.value = withTiming(0, {
@@ -70,9 +70,9 @@ const Login: React.FC = () => {
 
         const schema = Yup.object().shape({
           email: Yup.string()
-            .required('E-mail obrigatório')
-            .email('Digite um e-mail válido'),
-          password: Yup.string().required('Senha é obrigatória'),
+            .required("E-mail obrigatório")
+            .email("Digite um e-mail válido"),
+          password: Yup.string().required("Senha é obrigatória"),
         });
 
         await schema.validate(data, {
@@ -93,8 +93,8 @@ const Login: React.FC = () => {
         }
 
         Alert.alert(
-          'Erro na autentificação',
-          'Ocorreu um erro ao fazer login, cheque as credenciais.'
+          "Erro na autentificação",
+          "Ocorreu um erro ao fazer login, cheque as credenciais."
         );
       }
     },
@@ -147,7 +147,7 @@ const Login: React.FC = () => {
               formRef.current?.submitForm();
             }}
           >
-            Logar
+            {loading === true ? "Loading..." : "Logar"}
           </Button>
         </Form>
 

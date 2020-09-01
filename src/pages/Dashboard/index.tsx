@@ -57,6 +57,7 @@ interface ISchedules {
 const Dashboard: React.FC = () => {
   const [openMenuOptions, setOpenMenuOptions] = useState(false);
   const [needsUpdateEnrollment, setNeedsUpdateEnrollment] = useState(false);
+  const [studentsNeedUpdate, setStudentsNeedUpdate] = useState([]);
   const [students, setStudents] = useState([]);
   const [schedules, setSchedules] = useState<ISchedules[]>([]);
 
@@ -81,6 +82,10 @@ const Dashboard: React.FC = () => {
   const showStudentsProfile = useCallback(() => {
     navigate("UpdateStudents", students);
   }, [students]);
+
+  const navigateUpdateEnrollment = useCallback(() => {
+    navigate("UpdateEnrollment", studentsNeedUpdate);
+  }, [studentsNeedUpdate]);
 
   const handleToggleOpenMenuOptions = useCallback(() => {
     if (openMenuOptions) {
@@ -139,8 +144,13 @@ const Dashboard: React.FC = () => {
 
       responseStudents.data.forEach(async (student) => {
         await api.get(`students/show/${student.id}`).then((responseProfile) => {
-          if (responseProfile.data.enrollment.status === "pending")
+          if (responseProfile.data.enrollment.status === "pending") {
             needsUpdate = true;
+            setStudentsNeedUpdate((oldValue) => [
+              ...oldValue,
+              responseProfile.data,
+            ]);
+          }
         });
 
         setNeedsUpdateEnrollment(needsUpdate);
@@ -210,7 +220,10 @@ const Dashboard: React.FC = () => {
                 ? "Rematrículas abertas"
                 : "Matrículas em dia"}
             </UpdateEnrollmentTitle>
-            <UpdateEnrollmentButton enabled={needsUpdateEnrollment}>
+            <UpdateEnrollmentButton
+              onPress={navigateUpdateEnrollment}
+              enabled={needsUpdateEnrollment}
+            >
               <Feather
                 name="arrow-right"
                 size={24}
