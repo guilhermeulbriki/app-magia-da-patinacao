@@ -1,10 +1,8 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
-import { ScrollView, Platform, Alert } from "react-native";
+import { ScrollView, Alert } from "react-native";
 import { FormHandles } from "@unform/core";
 import { Form } from "@unform/mobile";
-import { Fontisto, Feather } from "@expo/vector-icons";
-import { format, getYear } from "date-fns";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import { Feather } from "@expo/vector-icons";
 import * as Yup from "yup";
 
 import Header from "../../components/Header";
@@ -12,8 +10,6 @@ import {
   Container,
   FormContent,
   FormTitle,
-  OpenDatePickerButton,
-  OpenDatePickerButtonText,
   ErrorMessage,
   FormHeader,
 } from "./styles";
@@ -23,17 +19,13 @@ import Button from "../../components/Button";
 import getValidationError from "../../utils/getValidationError";
 import api from "../../services/api";
 import putFirstLetterUperCase from "../../utils/putFirstLetterUperCase";
-import { useRoute } from "@react-navigation/native";
-
-interface Groups {
-  label: string;
-  value: string;
-}
+import { useRoute, useNavigation } from "@react-navigation/native";
 
 interface Student {
+  id: string;
   name: string;
   email: string;
-  age: number;
+  age: string;
   rg: number;
   cpf: number;
   phone: number;
@@ -45,37 +37,18 @@ interface Student {
 const UpdateStudents: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
   const { params } = useRoute();
+  const { navigate } = useNavigation();
   const students = params as Student[];
 
-  const [born, setBorn] = useState(new Date());
   const [gender, setGender] = useState("");
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [errorGender, setErrorGender] = useState(false);
-  const [errorGroup, setErrorGroup] = useState(false);
-  const [selectedGroup, setSelectedGroup] = useState("");
-  const [groups, setGroups] = useState<Groups[]>([]);
   const [formHasError, setFormHasError] = useState(false);
-  const [bornError, setBornError] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(0);
   const [initialData, setInitialData] = useState<Student>(students[0]);
 
   useEffect(() => {
-    api.get("groups/list", { params: { city: "" } }).then((response) => {
-      const formatedGroups = response.data.map((group) => {
-        return {
-          label: putFirstLetterUperCase(group.color),
-          value: group.id,
-        };
-      });
-
-      setGroups(formatedGroups);
-    });
-  }, []);
-
-  useEffect(() => {
     setInitialData(students[selectedStudent]);
     setGender(students[selectedStudent].gender);
-    setSelectedGroup(students[selectedStudent].group_id);
   }, [selectedStudent, students]);
 
   const handleSelectStudent = useCallback(
@@ -91,26 +64,8 @@ const UpdateStudents: React.FC = () => {
     [selectedStudent]
   );
 
-  const handleDateChange = useCallback((_: any, date: Date | undefined) => {
-    if (Platform.OS === "android") {
-      setShowDatePicker(false);
-    }
-
-    if (date) {
-      setBorn(date);
-    }
-  }, []);
-
-  const handleToggleDatePicker = useCallback(() => {
-    setShowDatePicker((state) => !state);
-  }, []);
-
   const handleSelectGender = useCallback((value: string) => {
     setGender(value);
-  }, []);
-
-  const handleSelectGroup = useCallback((value: string) => {
-    setSelectedGroup(value);
   }, []);
 
   const handleSubmit = useCallback(
@@ -118,10 +73,9 @@ const UpdateStudents: React.FC = () => {
       try {
         formRef.current?.setErrors({});
         setFormHasError(false);
-        setBornError(false);
-        setErrorGroup(false);
 
         const schema = Yup.object().shape({
+          age: Yup.number().required("Idade obrigatória"),
           name: Yup.string().required("Nome obrigatório"),
           email: Yup.string()
             .required("E-mail obrigatório")
@@ -147,13 +101,31 @@ const UpdateStudents: React.FC = () => {
           setErrorGender(true);
         }
 
-        if (selectedGroup.length === 0) setErrorGroup(true);
-
-        if (getYear(born) === getYear(new Date())) setBornError(true);
-
         await schema.validate(data, {
           abortEarly: false,
         });
+
+        const formateData = {
+          ...data,
+          gender,
+        };
+
+        const response = await api
+          .put("students", formateData, {
+            params: { student_id: students[selectedStudent].id },
+          })
+          .catch((err) => {
+            Alert.alert("Erro no cadastro", err.response.data.message);
+          });
+
+        if (response) {
+          Alert.alert(
+            "Perfil atualizado",
+            "As informações foram atualizadas com sucesso."
+          );
+
+          navigate("/Dashboard");
+        }
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
           const errors = getValidationError(err);
@@ -171,7 +143,7 @@ const UpdateStudents: React.FC = () => {
         );
       }
     },
-    [gender, errorGroup, bornError, errorGender, born, selectedGroup]
+    [gender, errorGender, students, selectedStudent]
   );
 
   return (
@@ -202,30 +174,8 @@ const UpdateStudents: React.FC = () => {
                 onPress={() => handleSelectStudent("up")}
               />
             </FormHeader>
-            <OpenDatePickerButton onPress={handleToggleDatePicker}>
-              <OpenDatePickerButtonText erro={bornError}>
-                {format(born, "dd/MM/yyyy")}
-              </OpenDatePickerButtonText>
-
-              <Fontisto name="date" size={18} color="#005678" />
-            </OpenDatePickerButton>
-
-            {showDatePicker && (
-              <DateTimePicker
-                mode="date"
-                display="calendar"
-                onChange={handleDateChange}
-                value={born}
-              />
-            )}
+            <Input name="age" placeholder="Idade" />
             <Input name="name" placeholder="Nome completo" />
-            <Select
-              defaultValue={students[selectedStudent].group_id}
-              error={errorGroup}
-              handleSelect={handleSelectGroup}
-              items={groups}
-              placeholder="Turma"
-            />
             <Input name="email" placeholder="E-mail" />
             <Input name="cpf" placeholder="CPF" />
             <Input name="rg" placeholder="RG" />
@@ -249,9 +199,7 @@ const UpdateStudents: React.FC = () => {
             />
 
             {formHasError ||
-              bornError ||
-              errorGender ||
-              (errorGroup && (
+              (errorGender && (
                 <ErrorMessage>
                   Ops, corrija os campos destacados e tente novamente
                 </ErrorMessage>

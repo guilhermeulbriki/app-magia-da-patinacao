@@ -127,7 +127,12 @@ const Dashboard: React.FC = () => {
     api.defaults.headers.authorization = `Bearer ${token}`;
 
     api.get(`students/by-sponsor/${sponsor.id}`).then((responseStudents) => {
-      setStudents(responseStudents.data);
+      setStudents(
+        responseStudents.data.map((student) => ({
+          ...student,
+          age: String(student.age),
+        }))
+      );
 
       let getSchedules = {} as ISchedules;
       let needsUpdate = false;
