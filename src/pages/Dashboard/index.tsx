@@ -261,7 +261,7 @@ const Dashboard: React.FC = () => {
             </CardBackground>
           </Card>
 
-          <Card onPress={() => redirectByCard("Dashboard")}>
+          <Card onPress={() => redirectByCard("History")}>
             <CardTitle>História do clube</CardTitle>
 
             <CardBackground resizeMode="contain" source={backCards}>
