@@ -1,8 +1,8 @@
-import React, { useCallback, useState, useRef, useEffect } from 'react';
-import { Platform, ScrollView, Alert } from 'react-native';
-import * as Yup from 'yup';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Fontisto, Ionicons } from '@expo/vector-icons';
+import React, { useCallback, useState, useRef, useEffect } from "react";
+import { Platform, ScrollView, Alert } from "react-native";
+import * as Yup from "yup";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { Fontisto, Ionicons } from "@expo/vector-icons";
 import {
   Container,
   FormContent,
@@ -17,17 +17,17 @@ import {
   FormBlockContentTop,
   FormBlockContentBottom,
   ErrorMessage,
-} from './styles';
-import Header from '../../components/Header';
-import { Form } from '@unform/mobile';
-import Select from '../../components/Select';
-import Input from '../../components/Input';
-import Button from '../../components/Button';
-import { FormHandles, Scope } from '@unform/core';
-import getValidationError from '../../utils/getValidationError';
-import { format } from 'date-fns/esm';
-import getAgeByDate from '../../utils/getAgeByDate';
-import { useNavigation } from '@react-navigation/native';
+} from "./styles";
+import Header from "../../components/Header";
+import { Form } from "@unform/mobile";
+import Select from "../../components/Select";
+import Input from "../../components/Input";
+import Button from "../../components/Button";
+import { FormHandles, Scope } from "@unform/core";
+import getValidationError from "../../utils/getValidationError";
+import { format } from "date-fns/esm";
+import getAgeByDate from "../../utils/getAgeByDate";
+import { useNavigation } from "@react-navigation/native";
 
 interface RegisterSponsor {
   name: string;
@@ -38,8 +38,8 @@ interface RegisterSponsor {
   cpf: string;
   phone: string;
   whatsapp?: string;
-  gender: 'masculino' | 'feminino';
-  affiliation: 'pai' | 'mae' | 'outro' | 'aluno';
+  gender: "masculino" | "feminino";
+  affiliation: "pai" | "mae" | "outro" | "aluno";
   address: {
     street: string;
     neighborhood: string;
@@ -52,10 +52,10 @@ interface RegisterSponsor {
 
 const RegisterSponsor: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
-  const [affiliation, setAffiliation] = useState('');
-  const [otherAffiliation, setOtherAffiliation] = useState('');
+  const [affiliation, setAffiliation] = useState("");
+  const [otherAffiliation, setOtherAffiliation] = useState("");
   const [formHasError, setFormHasError] = useState(false);
-  const [gender, setGender] = useState('');
+  const [gender, setGender] = useState("");
   const [errorGender, setErrorGender] = useState(false);
   const [born, setBorn] = useState(new Date());
   const [isAdult, setIsAdult] = useState(false);
@@ -65,7 +65,7 @@ const RegisterSponsor: React.FC = () => {
 
   useEffect(() => {
     if (isAdult && affiliation.length > 0) {
-      if (affiliation !== 'outro') {
+      if (affiliation !== "outro") {
         setIsblocked(false);
       } else {
         if (otherAffiliation.length > 0) {
@@ -86,38 +86,38 @@ const RegisterSponsor: React.FC = () => {
         setFormHasError(false);
 
         const schema = Yup.object().shape({
-          name: Yup.string().required('Nome obrigatório'),
+          name: Yup.string().required("Nome obrigatório"),
           email: Yup.string()
-            .required('E-mail obrigatório')
-            .email('Digite um e-mail válido'),
-          password: Yup.string().required('Senha é obrigatória'),
+            .required("E-mail obrigatório")
+            .email("Digite um e-mail válido"),
+          password: Yup.string().required("Senha é obrigatória"),
           rg: Yup.string()
-            .max(9, 'No máximo 9 digitos')
-            .min(9, 'No mínimo 9 digitos')
-            .required('RG obrigatório'),
+            .max(9, "No máximo 9 digitos")
+            .min(9, "No mínimo 9 digitos")
+            .required("RG obrigatório"),
           cpf: Yup.string()
-            .max(11, 'No máximo 11 digitos')
-            .min(11, 'No mínimo 11 digitos')
-            .required('CPF obrigatório'),
+            .max(11, "No máximo 11 digitos")
+            .min(11, "No mínimo 11 digitos")
+            .required("CPF obrigatório"),
           phone: Yup.string()
-            .max(11, 'DD mais 9 digitos')
-            .min(11, 'DD mais 9 digitos')
-            .required('Telefone obrigatório'),
+            .max(11, "DD mais 9 digitos")
+            .min(11, "DD mais 9 digitos")
+            .required("Telefone obrigatório"),
           whatsapp: Yup.string().notRequired(),
           address: Yup.object().shape({
-            street: Yup.string().required('Logradouro obrigatório'),
-            neighborhood: Yup.string().required('Bairro obrigatório'),
+            street: Yup.string().required("Logradouro obrigatório"),
+            neighborhood: Yup.string().required("Bairro obrigatório"),
             complement: Yup.string().notRequired(),
             number: Yup.string().notRequired(),
             cep: Yup.string()
-              .required('CEP obrigatório')
-              .min(8, 'No mínimo 8 digitos')
-              .max(8, 'No máximo 8 digitos'),
-            city: Yup.string().required('Cidade obrigatória'),
+              .required("CEP obrigatório")
+              .min(8, "No mínimo 8 digitos")
+              .max(8, "No máximo 8 digitos"),
+            city: Yup.string().required("Cidade obrigatória"),
           }),
         });
 
-        if (gender === 'masculino' || gender === 'feminino') {
+        if (gender === "masculino" || gender === "feminino") {
           setErrorGender(false);
         } else {
           setErrorGender(true);
@@ -136,7 +136,7 @@ const RegisterSponsor: React.FC = () => {
           cep: Number(data.address.cep),
         };
 
-        navigate('RegisterStudent', { sponsorData: formatedData });
+        navigate("RegisterStudent", { sponsorData: formatedData });
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
           const errors = getValidationError(err);
@@ -149,8 +149,8 @@ const RegisterSponsor: React.FC = () => {
         }
 
         Alert.alert(
-          'Erro no cadastro',
-          'Ocorreu um erro ao fazer o cadastro, cheque as informações.'
+          "Erro no cadastro",
+          "Ocorreu um erro ao fazer o cadastro, cheque as informações."
         );
       }
     },
@@ -158,7 +158,7 @@ const RegisterSponsor: React.FC = () => {
   );
 
   const handleDateChange = useCallback((_: any, date: Date | undefined) => {
-    if (Platform.OS === 'android') {
+    if (Platform.OS === "android") {
       setShowDatePicker(false);
     }
 
@@ -187,7 +187,7 @@ const RegisterSponsor: React.FC = () => {
 
   return (
     <Container>
-      <Header title="Cadastro de Responsável" />
+      <Header title="Cadastro do Responsável" />
 
       <ScrollView
         contentContainerStyle={{
@@ -202,25 +202,25 @@ const RegisterSponsor: React.FC = () => {
                 handleSelect={handleSelectAffiliation}
                 items={[
                   {
-                    label: 'Mãe',
-                    value: 'mae',
+                    label: "Mãe",
+                    value: "mae",
                   },
                   {
-                    label: 'Pai',
-                    value: 'pai',
+                    label: "Pai",
+                    value: "pai",
                   },
                   {
-                    label: 'Outro',
-                    value: 'outro',
+                    label: "Outro",
+                    value: "outro",
                   },
                   {
-                    label: 'Próprio aluno',
-                    value: 'aluno',
+                    label: "Próprio aluno",
+                    value: "aluno",
                   },
                 ]}
                 placeholder="Filialidade"
               />
-              {affiliation === 'outro' && (
+              {affiliation === "outro" && (
                 <FormInputAffiliation
                   value={otherAffiliation}
                   onChangeText={(text) => setOtherAffiliation(text)}
@@ -232,7 +232,7 @@ const RegisterSponsor: React.FC = () => {
             <FormTitle>Informações pessoais:</FormTitle>
             <OpenDatePickerButton onPress={handleToggleDatePicker}>
               <OpenDatePickerButtonText erro={!isAdult}>
-                {format(born, 'dd/MM/yyyy')}
+                {format(born, "dd/MM/yyyy")}
               </OpenDatePickerButtonText>
 
               <Fontisto name="date" size={18} color="#005678" />
@@ -260,12 +260,12 @@ const RegisterSponsor: React.FC = () => {
                   handleSelect={handleSelectGender}
                   items={[
                     {
-                      label: 'Masculino',
-                      value: 'masculino',
+                      label: "Masculino",
+                      value: "masculino",
                     },
                     {
-                      label: 'Feminino',
-                      value: 'feminino',
+                      label: "Feminino",
+                      value: "feminino",
                     },
                   ]}
                   placeholder="Sexo"

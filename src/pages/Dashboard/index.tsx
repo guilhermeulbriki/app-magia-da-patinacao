@@ -106,8 +106,8 @@ const Dashboard: React.FC = () => {
       headerHeight.value = withTiming(
         570,
         {
-          duration: 400,
-          easing: Easing.ease,
+          duration: 800,
+          easing: Easing.bounce,
         },
         () => {
           optionsOpacity.value = withTiming(1, {
@@ -207,7 +207,7 @@ const Dashboard: React.FC = () => {
           <HeaderOption to="/UpdateStudents" onPress={showStudentsProfile}>
             Perfil dos alunos
           </HeaderOption>
-          <HeaderOption to="/Dashboard">Desvincular-se do clube</HeaderOption>
+          <HeaderOption to="/Shutdown">Desvincular-se do clube</HeaderOption>
           <HeaderOption to="/Dashboard" onPress={signOut}>
             Sair
           </HeaderOption>

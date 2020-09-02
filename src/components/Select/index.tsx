@@ -34,6 +34,7 @@ const Select: React.FC<SelectProps> = ({
 
   useEffect(() => {
     setValue(defaultValue);
+    setIsFilled(true);
   }, [defaultValue]);
 
   return (
