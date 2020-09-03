@@ -37,7 +37,7 @@ interface Student {
 const UpdateStudents: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
   const { params } = useRoute();
-  const { navigate } = useNavigation();
+  const { reset } = useNavigation();
   const students = params as Student[];
 
   const [gender, setGender] = useState("");
@@ -124,7 +124,14 @@ const UpdateStudents: React.FC = () => {
             "As informações foram atualizadas com sucesso."
           );
 
-          navigate("/Dashboard");
+          reset({
+            routes: [
+              {
+                name: "Dashboard",
+              },
+            ],
+            index: 0,
+          });
         }
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
@@ -143,7 +150,7 @@ const UpdateStudents: React.FC = () => {
         );
       }
     },
-    [gender, errorGender, students, selectedStudent]
+    [gender, errorGender, students, selectedStudent, reset]
   );
 
   return (

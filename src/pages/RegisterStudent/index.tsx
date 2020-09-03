@@ -1,11 +1,11 @@
-import React, { useCallback, useRef, useState, useEffect } from 'react';
-import { Platform, ScrollView, Alert, Modal } from 'react-native';
-import { FormHandles } from '@unform/core';
-import { Form } from '@unform/mobile';
-import { Fontisto } from '@expo/vector-icons';
-import { format, getYear } from 'date-fns';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import * as Yup from 'yup';
+import React, { useCallback, useRef, useState, useEffect } from "react";
+import { Platform, ScrollView, Alert, Modal } from "react-native";
+import { FormHandles } from "@unform/core";
+import { Form } from "@unform/mobile";
+import { Fontisto } from "@expo/vector-icons";
+import { format, getYear } from "date-fns";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import * as Yup from "yup";
 import {
   Container,
   FormContent,
@@ -23,17 +23,17 @@ import {
   ModalValitationClock,
   ConfirmButton,
   ConfirmButtonText,
-} from './styles';
-import Header from '../../components/Header';
-import Input from '../../components/Input';
-import Select from '../../components/Select';
-import Button from '../../components/Button';
-import { useRoute, useNavigation } from '@react-navigation/native';
-import api from '../../services/api';
-import CheckBox from '@react-native-community/checkbox';
-import putFirstLetterUperCase from '../../utils/putFirstLetterUperCase';
-import getValidationError from '../../utils/getValidationError';
-import getAgeByDate from '../../utils/getAgeByDate';
+} from "./styles";
+import Header from "../../components/Header";
+import Input from "../../components/Input";
+import Select from "../../components/Select";
+import Button from "../../components/Button";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import api from "../../services/api";
+import CheckBox from "@react-native-community/checkbox";
+import putFirstLetterUperCase from "../../utils/putFirstLetterUperCase";
+import getValidationError from "../../utils/getValidationError";
+import getAgeByDate from "../../utils/getAgeByDate";
 
 interface RegisterStudent {
   name: string;
@@ -57,8 +57,8 @@ interface RouteParams {
     cpf: string;
     phone: string;
     whatsapp?: string;
-    gender: 'masculino' | 'feminino';
-    type: 'pai' | 'mae' | 'outro' | 'aluno';
+    gender: "masculino" | "feminino";
+    type: "pai" | "mae" | "outro" | "aluno";
     address: {
       street: string;
       neighborhood: string;
@@ -76,12 +76,13 @@ interface Groups {
 }
 
 const RegisterStudent: React.FC = () => {
+  const [timeToRead, setTimeToRead] = useState(6);
   const [born, setBorn] = useState(new Date());
-  const [gender, setGender] = useState('');
+  const [gender, setGender] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [errorGender, setErrorGender] = useState(false);
   const [errorGroup, setErrorGroup] = useState(false);
-  const [selectedGroup, setSelectedGroup] = useState('');
+  const [selectedGroup, setSelectedGroup] = useState("");
   const [groups, setGroups] = useState<Groups[]>([]);
   const [formHasError, setFormHasError] = useState(false);
   const [bornError, setBornError] = useState(false);
@@ -97,7 +98,7 @@ const RegisterStudent: React.FC = () => {
   const { sponsorData } = params as RouteParams;
 
   useEffect(() => {
-    api.get('groups/list', { params: { city: '' } }).then((response) => {
+    api.get("groups/list", { params: { city: "" } }).then((response) => {
       const formatedGroups = response.data.map((group) => {
         return {
           label: putFirstLetterUperCase(group.color),
@@ -110,14 +111,22 @@ const RegisterStudent: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (sponsorData.type === 'aluno') {
+    if (showModal === true) {
+      setInterval(() => {
+        setTimeToRead((oldValue) => (oldValue > 0 ? oldValue - 1 : oldValue));
+      }, 1000);
+    }
+  }, [showModal]);
+
+  useEffect(() => {
+    if (sponsorData.type === "aluno") {
       setBorn(sponsorData.born);
       setGender(sponsorData.gender);
     }
   }, [sponsorData]);
 
   const handleDateChange = useCallback((_: any, date: Date | undefined) => {
-    if (Platform.OS === 'android') {
+    if (Platform.OS === "android") {
       setShowDatePicker(false);
     }
 
@@ -151,26 +160,26 @@ const RegisterStudent: React.FC = () => {
         setErrorGroup(false);
 
         const schema = Yup.object().shape({
-          name: Yup.string().required('Nome obrigatório'),
+          name: Yup.string().required("Nome obrigatório"),
           email: Yup.string()
-            .required('E-mail obrigatório')
-            .email('Digite um e-mail válido'),
+            .required("E-mail obrigatório")
+            .email("Digite um e-mail válido"),
           rg: Yup.string()
-            .max(9, 'No máximo 9 digitos')
-            .min(9, 'No mínimo 9 digitos')
-            .required('RG obrigatório'),
+            .max(9, "No máximo 9 digitos")
+            .min(9, "No mínimo 9 digitos")
+            .required("RG obrigatório"),
           cpf: Yup.string()
-            .max(11, 'No máximo 11 digitos')
-            .min(11, 'No mínimo 11 digitos')
-            .required('CPF obrigatório'),
+            .max(11, "No máximo 11 digitos")
+            .min(11, "No mínimo 11 digitos")
+            .required("CPF obrigatório"),
           phone: Yup.string()
-            .max(11, 'DD mais 9 digitos')
-            .min(11, 'DD mais 9 digitos')
-            .required('Telefone obrigatório'),
+            .max(11, "DD mais 9 digitos")
+            .min(11, "DD mais 9 digitos")
+            .required("Telefone obrigatório"),
           whatsapp: Yup.string().notRequired(),
         });
 
-        if (gender === 'masculino' || gender === 'feminino') {
+        if (gender === "masculino" || gender === "feminino") {
           setErrorGender(false);
         } else {
           setErrorGender(true);
@@ -210,8 +219,8 @@ const RegisterStudent: React.FC = () => {
         }
 
         Alert.alert(
-          'Erro no cadastro',
-          'Ocorreu um erro ao fazer o cadastro, cheque as informações.'
+          "Erro no cadastro",
+          "Ocorreu um erro ao fazer o cadastro, cheque as informações."
         );
       }
     },
@@ -222,23 +231,23 @@ const RegisterStudent: React.FC = () => {
     if (acceptThermes) {
       try {
         api
-          .post('sponsors', sponsorData)
+          .post("sponsors", sponsorData)
           .then((createdSponsor) => {
             api
-              .post('sessions/sponsor', {
+              .post("sessions/sponsor", {
                 email: sponsorData.email,
                 password: sponsorData.password,
               })
               .then((bearerSponsorToken) => {
                 api
-                  .post('students', studentData, {
+                  .post("students", studentData, {
                     headers: {
                       Authorization: `Bearer ${bearerSponsorToken.data.token}`,
                     },
                   })
                   .then((createdStudent) => {
                     api
-                      .post('enrollments', null, {
+                      .post("enrollments", null, {
                         params: { student_id: createdStudent.data.id },
                         headers: {
                           Authorization: `Bearer ${bearerSponsorToken.data.token}`,
@@ -249,7 +258,7 @@ const RegisterStudent: React.FC = () => {
                         reset({
                           routes: [
                             {
-                              name: 'EnrollmentCreated',
+                              name: "EnrollmentCreated",
                               params: {
                                 email: sponsorData.email,
                                 password: sponsorData.password,
@@ -261,33 +270,33 @@ const RegisterStudent: React.FC = () => {
                       })
                       .catch((err) => {
                         Alert.alert(
-                          'Erro ao efetuar a matrícula',
+                          "Erro ao efetuar a matrícula",
                           err.response.data.message
                         );
                       });
                   })
                   .catch((err) => {
                     Alert.alert(
-                      'Erro ao cadastrar o aluno',
+                      "Erro ao cadastrar o aluno",
                       err.response.data.message
                     );
                   });
               })
               .catch((err) => {
                 Alert.alert(
-                  'Erro ao efetuar o login do responsável',
+                  "Erro ao efetuar o login do responsável",
                   err.response.data.message
                 );
               });
           })
           .catch((err) => {
             Alert.alert(
-              'Erro ao cadastrar o responsável',
+              "Erro ao cadastrar o responsável",
               err.response.data.message
             );
           });
       } catch (err) {
-        Alert.alert('Erro ao realizar a matrícula', err);
+        Alert.alert("Erro ao realizar a matrícula", err);
       }
     }
   }, [acceptThermes, navigate, sponsorData, studentData, reset]);
@@ -303,7 +312,7 @@ const RegisterStudent: React.FC = () => {
           }}
         >
           <Form
-            initialData={sponsorData.type === 'aluno' ? sponsorData : {}}
+            initialData={sponsorData.type === "aluno" ? sponsorData : {}}
             ref={formRef}
             onSubmit={handleSubmit}
           >
@@ -311,7 +320,7 @@ const RegisterStudent: React.FC = () => {
               <FormTitle>Informações do aluno:</FormTitle>
               <OpenDatePickerButton onPress={handleToggleDatePicker}>
                 <OpenDatePickerButtonText erro={bornError}>
-                  {format(born, 'dd/MM/yyyy')}
+                  {format(born, "dd/MM/yyyy")}
                 </OpenDatePickerButtonText>
 
                 <Fontisto name="date" size={18} color="#005678" />
@@ -340,17 +349,17 @@ const RegisterStudent: React.FC = () => {
               <Select
                 error={errorGender}
                 defaultValue={
-                  sponsorData.type === 'aluno' ? sponsorData.gender : ''
+                  sponsorData.type === "aluno" ? sponsorData.gender : ""
                 }
                 handleSelect={handleSelectGender}
                 items={[
                   {
-                    label: 'Masculino',
-                    value: 'masculino',
+                    label: "Masculino",
+                    value: "masculino",
                   },
                   {
-                    label: 'Feminino',
-                    value: 'feminino',
+                    label: "Feminino",
+                    value: "feminino",
                   },
                 ]}
                 placeholder="Sexo"
@@ -417,13 +426,13 @@ const RegisterStudent: React.FC = () => {
             <ModalValidation>
               <ModalValitationThermes>
                 <CheckBox
-                  disabled={false}
+                  disabled={timeToRead === 0 ? false : true}
                   value={acceptThermes}
                   onValueChange={(value) => setAcceptThermes(value)}
                 />
                 <CheckText>Aceito os termos</CheckText>
               </ModalValitationThermes>
-              <ModalValitationClock>00:00</ModalValitationClock>
+              <ModalValitationClock>{timeToRead}</ModalValitationClock>
             </ModalValidation>
             <ConfirmButton onPress={confirmSubmit}>
               <ConfirmButtonText>Matricular</ConfirmButtonText>
