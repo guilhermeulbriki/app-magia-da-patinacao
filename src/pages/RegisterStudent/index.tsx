@@ -158,6 +158,7 @@ const RegisterStudent: React.FC = () => {
         setFormHasError(false);
         setBornError(false);
         setErrorGroup(false);
+        setErrorGender(false);
 
         const schema = Yup.object().shape({
           name: Yup.string().required("Nome obrigatório"),
