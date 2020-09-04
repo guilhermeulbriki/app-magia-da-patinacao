@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <img alt="App Demo" src="./assets/ui.png">
+  <img alt="App Demo" src="./assets/video.gif">
 </p>
 
 ## 🚀 Technologies
