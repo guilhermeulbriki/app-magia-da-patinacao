@@ -6,13 +6,7 @@ interface PickerButtonProps {
   erro: boolean;
 }
 
-export const Container = styled.View`
-  ${(props) =>
-    props.modalShowed &&
-    css`
-      opacity: 0.7;
-    `};
-`;
+export const Container = styled.View``;
 
 export const FormContent = styled.View`
   margin-top: 24px;
@@ -67,4 +61,11 @@ export const ErrorMessage = styled.Text`
   font-size: 16px;
   color: #eb5757;
   text-align: center;
+`;
+
+export const DeleteStudent = styled.Text`
+  color: #eb5757;
+  text-align: center;
+  margin-top: 32px;
+  font-size: 14px;
 `;

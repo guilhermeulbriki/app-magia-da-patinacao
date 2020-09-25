@@ -147,7 +147,7 @@ const Login: React.FC = () => {
               formRef.current?.submitForm();
             }}
           >
-            {loading === true ? "Loading..." : "Logar"}
+            {loading ? "Loading..." : "Logar"}
           </Button>
         </Form>
 

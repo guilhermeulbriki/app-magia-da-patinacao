@@ -3,6 +3,7 @@ import { ScrollView, Alert } from "react-native";
 import { FormHandles } from "@unform/core";
 import { Form } from "@unform/mobile";
 import { Feather } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import * as Yup from "yup";
 
 import Header from "../../components/Header";
@@ -12,14 +13,14 @@ import {
   FormTitle,
   ErrorMessage,
   FormHeader,
+  DeleteStudent,
 } from "./styles";
 import Input from "../../components/Input";
 import Select from "../../components/Select";
 import Button from "../../components/Button";
 import getValidationError from "../../utils/getValidationError";
-import api from "../../services/api";
 import putFirstLetterUperCase from "../../utils/putFirstLetterUperCase";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import { useStudents } from "../../hooks/Students";
 
 interface Student {
   id: string;
@@ -36,9 +37,8 @@ interface Student {
 
 const UpdateStudents: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
-  const { params } = useRoute();
-  const { reset } = useNavigation();
-  const students = params as Student[];
+  const { students, add, update, remove } = useStudents();
+  const { navigate } = useNavigation();
 
   const [gender, setGender] = useState("");
   const [errorGender, setErrorGender] = useState(false);
@@ -108,31 +108,11 @@ const UpdateStudents: React.FC = () => {
         const formateData = {
           ...data,
           gender,
+          id: students[selectedStudent].id,
         };
 
-        const response = await api
-          .put("students", formateData, {
-            params: { student_id: students[selectedStudent].id },
-          })
-          .catch((err) => {
-            Alert.alert("Erro no cadastro", err.response.data.message);
-          });
-
-        if (response) {
-          Alert.alert(
-            "Perfil atualizado",
-            "As informações foram atualizadas com sucesso."
-          );
-
-          reset({
-            routes: [
-              {
-                name: "Dashboard",
-              },
-            ],
-            index: 0,
-          });
-        }
+        update(formateData);
+        navigate("Dashboard");
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
           const errors = getValidationError(err);
@@ -150,8 +130,16 @@ const UpdateStudents: React.FC = () => {
         );
       }
     },
-    [gender, errorGender, students, selectedStudent, reset]
+    [gender, errorGender, students, selectedStudent]
   );
+
+  const handleDelete = useCallback(async () => {
+    const { id } = students[selectedStudent];
+
+    remove(id);
+
+    setSelectedStudent(0);
+  }, [selectedStudent, students]);
 
   return (
     <Container>
@@ -205,12 +193,11 @@ const UpdateStudents: React.FC = () => {
               placeholder="Sexo"
             />
 
-            {formHasError ||
-              (errorGender && (
-                <ErrorMessage>
-                  Ops, corrija os campos destacados e tente novamente
-                </ErrorMessage>
-              ))}
+            {(formHasError || errorGender) && (
+              <ErrorMessage>
+                Ops, corrija os campos destacados e tente novamente
+              </ErrorMessage>
+            )}
 
             <Button
               onPress={() => formRef.current?.submitForm()}
@@ -218,6 +205,8 @@ const UpdateStudents: React.FC = () => {
             >
               Atualizar dados
             </Button>
+
+            <DeleteStudent onPress={handleDelete}>Excluir aluno</DeleteStudent>
           </FormContent>
         </Form>
       </ScrollView>

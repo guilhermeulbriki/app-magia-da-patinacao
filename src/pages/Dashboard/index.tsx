@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Image, View, ActivityIndicator } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { useStudents } from "../../hooks/Students";
 import { Feather } from "@expo/vector-icons";
 import api from "../../services/api";
 import {
@@ -42,7 +44,6 @@ import {
   UpdateEnrollmentTitle,
   UpdateEnrollmentButton,
 } from "./styles";
-import { useNavigation } from "@react-navigation/native";
 
 interface ISchedules {
   studentName: string;
@@ -58,10 +59,10 @@ const Dashboard: React.FC = () => {
   const [openMenuOptions, setOpenMenuOptions] = useState(false);
   const [needsUpdateEnrollment, setNeedsUpdateEnrollment] = useState(false);
   const [studentsNeedUpdate, setStudentsNeedUpdate] = useState([]);
-  const [students, setStudents] = useState([]);
   const [schedules, setSchedules] = useState<ISchedules[]>([]);
 
   const { sponsor, signOut, token } = useAuth();
+  const { students } = useStudents();
   const { navigate } = useNavigation();
 
   const headerHeight = useSharedValue(148);
@@ -80,8 +81,8 @@ const Dashboard: React.FC = () => {
   });
 
   const showStudentsProfile = useCallback(() => {
-    navigate("UpdateStudents", students);
-  }, [students]);
+    navigate("UpdateStudents");
+  }, []);
 
   const navigateUpdateEnrollment = useCallback(() => {
     navigate("UpdateEnrollment", studentsNeedUpdate);
@@ -131,18 +132,11 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     api.defaults.headers.authorization = `Bearer ${token}`;
 
-    api.get(`students/by-sponsor/${sponsor.id}`).then((responseStudents) => {
-      setStudents(
-        responseStudents.data.map((student) => ({
-          ...student,
-          age: String(student.age),
-        }))
-      );
+    let getSchedules = [] as ISchedules[];
+    let needsUpdate = false;
 
-      let getSchedules = {} as ISchedules;
-      let needsUpdate = false;
-
-      responseStudents.data.forEach(async (student) => {
+    if (students) {
+      students.forEach(async (student) => {
         await api.get(`students/show/${student.id}`).then((responseProfile) => {
           if (responseProfile.data.enrollment.status === "pending") {
             needsUpdate = true;
@@ -156,28 +150,21 @@ const Dashboard: React.FC = () => {
         setNeedsUpdateEnrollment(needsUpdate);
       });
 
-      responseStudents.data.forEach(async (student) => {
+      students.forEach(async (student) => {
         await api.get(`groups/${student.group_id}`).then((responseGroups) => {
-          getSchedules = {
-            studentName: student.name,
-            schedules: responseGroups.data.schedules,
-          };
+          getSchedules = [
+            ...getSchedules,
+            {
+              studentName: student.name,
+              schedules: responseGroups.data.schedules,
+            },
+          ];
         });
 
-        setSchedules((oldValue) => {
-          const searchResult = oldValue.find(
-            (value) => value.studentName === student.name
-          );
-
-          if (!searchResult) {
-            return [...oldValue, getSchedules];
-          } else {
-            return [...oldValue];
-          }
-        });
+        setSchedules(getSchedules);
       });
-    });
-  }, [sponsor]);
+    }
+  }, [sponsor, students]);
 
   return (
     <Container>
