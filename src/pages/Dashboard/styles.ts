@@ -55,7 +55,7 @@ export const HeaderOption = styled(Link)`
   color: #eaeaea;
   font-size: 21px;
   font-family: "Roboto_500Medium";
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 `;
 
 export const UpdateEnrollment = styled.View`

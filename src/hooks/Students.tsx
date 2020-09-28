@@ -62,9 +62,28 @@ export const StudentsProvider: React.FC = ({ children }) => {
 
   const add = useCallback(
     async (student: IStudent) => {
-      const response = await api.post("students", student);
+      try {
+        const response = await api.post("students", student);
 
-      setData({ students: [...data.students, response.data] });
+        await api.post("enrollments", null, {
+          params: { student_id: response.data.id },
+        });
+
+        const formatedData = {
+          ...response.data,
+          age: Number(response.data.age),
+        };
+
+        setData({ students: [...data.students, formatedData] });
+
+        Alert.alert("Aluno adicionado", "O aluno foi adicionado com sucesso.");
+      } catch (err) {
+        let description = "Ocorreu um erro ao adicionar o aluno.";
+
+        if (err) description = err.response.data.message;
+
+        Alert.alert("Erro ao adicionar", description);
+      }
     },
     [data.students]
   );
@@ -92,7 +111,7 @@ export const StudentsProvider: React.FC = ({ children }) => {
           );
         })
         .catch((err) => {
-          let description = "As informações foram atualizadas com sucesso.";
+          let description = "Occoreu um erro ao atualizar as informações.";
 
           if (err) description = err.response.data.message;
 

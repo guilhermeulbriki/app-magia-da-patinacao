@@ -56,6 +56,7 @@ interface ISchedules {
 }
 
 const Dashboard: React.FC = () => {
+  const [showModal, setShowModal] = useState(false);
   const [openMenuOptions, setOpenMenuOptions] = useState(false);
   const [needsUpdateEnrollment, setNeedsUpdateEnrollment] = useState(false);
   const [studentsNeedUpdate, setStudentsNeedUpdate] = useState([]);
